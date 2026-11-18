@@ -284,7 +284,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
       <h2 id="emTitle">Add employee</h2>
       <div class="form-row" id="emForm"></div>
       <p><button class="btn" id="emSave">Add</button> <button class="btn alt" id="emCancel" style="display:none">Cancel</button></p>
-      <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS are REGULAR, SPES / GIP / EE are MONTHLY. Supervisor and Sector are dropdowns (managed in the Supervisors page and Settings); the supervisor's position fills in automatically. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name). The earliest of Start as COS / EE / plantilla is the first day of service and the End date is the last day: the DTR, AR and WFH Report show nothing (not even dates) outside that range. Employees tagged RESIGNED or TRANSFERRED no longer appear in the Employee dropdown.</p>
+      <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS are REGULAR, SPES / GIP / EE are MONTHLY. Division, Section, Unit and Sector are dropdowns (managed in Settings). Division Head, Section Head and Unit Head are looked up automatically from the Supervisors page based on the employee's Division, Section and Unit. CSE is a single dropdown: CSE Professional or CSE Non-professional. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name). The earliest of Start as COS / EE / plantilla is the first day of service and the End date is the last day: the DTR, AR and WFH Report show nothing (not even dates) outside that range. Employees tagged RESIGNED or TRANSFERRED no longer appear in the Employee dropdown.</p>
     </div>
     <div class="card">
       <h2>Employees</h2>
@@ -323,13 +323,14 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <!-- SUPERVISORS -->
   <section class="view" id="v-supervisors">
     <div class="card">
-      <h2 id="svTitle">Add supervisor</h2>
+      <h2 id="svTitle">Add division / section / unit head</h2>
       <div class="form-row">
         <label style="flex:1;min-width:260px">Supervisor name<input id="svName"></label>
         <label style="flex:1;min-width:260px">Position<input id="svPos"></label>
+        <label style="flex:1;min-width:220px">Division<select id="svDiv"></select></label><label style="flex:1;min-width:220px">Section<select id="svSection"></select></label><label style="flex:1;min-width:220px">Unit<select id="svUnit"></select></label>
         <button class="btn" id="svSave">Add</button><button class="btn alt" id="svCancel" style="display:none">Cancel</button>
       </div>
-      <p class="note">These supervisors appear in the Supervisor dropdown on the Employees page, and the position fills in automatically.</p>
+      <p class="note">Assign a Division Head by leaving Section and Unit blank; a Section Head by selecting a Section and leaving Unit blank; or a Unit Head by selecting both Section and Unit. Employee head fields are looked up automatically from these assignments.</p>
     </div>
     <div class="card">
       <h2>Supervisors list</h2>
@@ -418,6 +419,33 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
           <p class="note">Monthly types accumulate from January to December and reset every January.</p>
         </div>
         <div class="card">
+          <h2 id="dvTitle">Divisions</h2>
+          <div class="form-row">
+            <label style="flex:1;min-width:200px">Division<input id="dvName" placeholder="e.g. Public Employment Division"></label>
+            <button class="btn" id="dvSave">Add</button><button class="btn alt" id="dvCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll"><table class="tbl" id="dvTbl"></table></div>
+          <p class="note">These are the choices in the Division dropdown on the Employees and Supervisors pages. Renaming a division also updates the employees and supervisors that use it.</p>
+        </div>
+        <div class="card">
+          <h2 id="snTitle">Sections</h2>
+          <div class="form-row">
+            <label style="flex:1;min-width:200px">Section<input id="snName" placeholder="e.g. Placement Section"></label>
+            <button class="btn" id="snSave">Add</button><button class="btn alt" id="snCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll"><table class="tbl" id="snTbl"></table></div>
+          <p class="note">These are the choices in the Section dropdown on the Employees page.</p>
+        </div>
+        <div class="card">
+          <h2 id="unTitle">Units</h2>
+          <div class="form-row">
+            <label style="flex:1;min-width:200px">Unit<input id="unName" placeholder="e.g. Records Unit"></label>
+            <button class="btn" id="unSave">Add</button><button class="btn alt" id="unCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll"><table class="tbl" id="unTbl"></table></div>
+          <p class="note">These are the choices in the Unit dropdown on the Employees page.</p>
+        </div>
+        <div class="card">
           <h2 id="scTitle">Sector types</h2>
           <div class="form-row">
             <label>Sector<input id="scName" placeholder="e.g. SOLO PARENT"></label>
@@ -485,7 +513,7 @@ function makeDefaults(){
   const may=monthly.find(c=>c.cutoff==='2026-05-31'); if(may) may.cutoff='2026-05-30';
   return {
     office:{appName:'PESO DTR & AR Portal',name:'PUBLIC EMPLOYMENT SERVICE OFFICE',address:'6F Civic Center Building A, Quezon City Hall',verifier:'ROGELIO L. REYES, MCD',verifierPos:'City Government Department Head III',lunchOut:'12:00',lunchIn:'1:00'},
-    employees:[{id:E,last:'AQUINO',first:'KRISTINE',middle:'D.',position:'LABOR EMPLOYMENT OFFICER II',supervisor:'MARIA TERESA A. GUARDIANO, MEM, LPT',supPosition:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',schedIn:'8:00',schedOut:'5:00 PM',status:'PLANTILLA',mondayStatus:'REGULAR ACTIVITY',cell:'',qcId:'',sector:'PWD',email:'',joStart:'',plantillaStart:'',eeStart:'',birthday:''}],
+    employees:[{id:E,last:'AQUINO',first:'KRISTINE',middle:'D.',position:'LABOR EMPLOYMENT OFFICER II',supervisor:'MARIA TERESA A. GUARDIANO, MEM, LPT',supPosition:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',division:'Special Projects Division',section:'',unit:'',schedIn:'8:00',schedOut:'5:00 PM',status:'PLANTILLA',mondayStatus:'REGULAR ACTIVITY',cell:'',qcId:'',sector:'PWD',email:'',joStart:'',plantillaStart:'',eeStart:'',birthday:''}],
     cutoffs:genRegular(2026).concat(genRegular(2027),monthly),
     holidays:[
       ['2026-04-02','HOLY WEEK'],['2026-04-03','HOLY WEEK'],['2026-04-09','DAY OF VALOR'],['2026-05-01','LABOR DAY'],
@@ -520,9 +548,12 @@ function makeDefaults(){
       L('2026-09-21','Sick Leave'),L('2026-09-22','Sick Leave')
     ],
     supervisors:[
-      {id:uid(),name:'MARIA TERESA A. GUARDIANO, MEM, LPT',position:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION'},
-      {id:uid(),name:'ROGELIO L. REYES, MCD',position:'City Government Department Head III'}
+      {id:uid(),name:'MARIA TERESA A. GUARDIANO, MEM, LPT',position:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',division:'Special Projects Division'},
+      {id:uid(),name:'ROGELIO L. REYES, MCD',position:'City Government Department Head III',division:''}
     ],
+    divisions:['Public Employment Division', 'Migration Services Division', 'Special Projects Division', 'Labor Market Information Systems Division', 'Labor Relations and Standards Division', 'Administrative Support Staff', 'District Operations'].map(x=>({id:uid(),name:x})),
+    sections:[],
+    units:[],
     sectors:['PWD','SENIOR','EMPLOYED','UNEMPLOYED','NEET','IN-SCHOOL','SOLO PARENT'].map(x=>({id:uid(),name:x})),
     trainings:[],
     workexp:[],
@@ -542,11 +573,50 @@ function load(){
     }
     d.employees.forEach(e=>{if(e.middle===undefined)e.middle=e.mi||'';delete e.mi;});
   }catch(e){}
+  migrateOrg(d);
   return d;
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}try{xlSchedule();}catch(e){}}
+/* Division / Section / Unit: upgrade older data and keep each employee's supervisor in step with their Division */
+function migrateOrg(d){
+  ['divisions','sections','units'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=k==='divisions'?makeDefaults().divisions:[];});
+  d.supervisors.forEach(v=>{
+    if(v.division===undefined){
+      const up=String(v.position||'').toUpperCase();
+      const m=d.divisions.find(x=>up.includes(x.name.toUpperCase()));
+      v.division=m?m.name:'';
+    }
+  });
+  d.employees.forEach(e=>{
+    if(e.division===undefined){const sv=d.supervisors.find(x=>x.name===e.supervisor);e.division=sv?sv.division||'':'';}
+    if(e.section===undefined)e.section='';
+    if(e.unit===undefined)e.unit='';
+    if(e.cse===undefined){e.cse=e.csePro?'CSE Professional':(e.cseNon?'CSE Non-professional':'');}
+    delete e.csePro;delete e.cseNon;
+  });
+  syncSup(d);
+}
+function syncSup(d){
+  const z=d||S;
+  z.employees.forEach(e=>{
+    const dh=findOrgHeadFor(z,e.division,'','','division');
+    const sh=e.section?findOrgHeadFor(z,e.division,e.section,'','section'):null;
+    const uh=e.section&&e.unit?findOrgHeadFor(z,e.division,e.section,e.unit,'unit'):null;
+    e.supervisor=dh?dh.name:'';e.supPosition=dh?dh.position:'';
+    e.sectionHead=sh?sh.name:'';e.unitHead=uh?uh.name:'';
+  });
+}
+function findOrgHeadFor(z,division,section,unit,level){
+  return z.supervisors.find(x=>{
+    if(x.division!==division||!division)return false;
+    const sec=String(x.section||''),un=String(x.unit||'');
+    if(level==='division')return !sec&&!un;
+    if(level==='section')return !!section&&sec===section&&!un;
+    return !!section&&!!unit&&sec===section&&un===unit;
+  })||null;
+}
+function save(){syncSup();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}try{xlSchedule();}catch(e){}}
 let S=load();
-const edit={wx:null,ot:null,co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
+const edit={dv:null,sn:null,un:null,wx:null,ot:null,co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
 
 /* ================= HELPERS ================= */
 const INACTIVE=['RESIGNED','TRANSFERRED'];
@@ -709,8 +779,9 @@ function arHead(c,title,vd){
     '<div class="per"><div>Attendance Period : '+long(a)+' - '+long(b)+'</div><div>Payroll Period : '+esc(c.payroll)+'</div></div>';
 }
 function arSigs(e){
+  const dh=findOrgHead(e.division,'','','division');
   return '<div class="sigs"><div><div class="k">Submitted BY:</div><div class="n">'+esc(empName(e))+'</div><div>'+esc(e.position)+'</div></div>'+
-    '<div><div class="k">Approved By:</div><div class="n">'+esc(e.supervisor)+'</div><div>'+esc(e.supPosition)+'</div></div></div>';
+    '<div><div class="k">Approved By:</div><div class="n">'+esc(dh?dh.name:'')+'</div><div>'+esc(dh?dh.position:'')+'</div><div>'+esc(e.division||'')+'</div></div></div>';
 }
 function renderAR(){
   const e=emp(),c=cut();
@@ -761,9 +832,9 @@ function renderHome(){
   $('homeTrnT').textContent='Training hours – '+hy;
   $('homeTrn').innerHTML=pillH(th.tech,'Technical')+pillH(th.sup,'Supervisorial')+pillH(th.mgr,'Managerial')+pillH(th.tech+th.sup+th.mgr,'Total');
   if(c){
-    $('homeCut').innerHTML=kv([['Cut-off date',long(c.cut)],['Start date',long(c.start)],['End date',long(c.end)],['Payroll month',c.payroll],['Payroll type',GROUP_LABEL[g]]]);
+    $('homeCut').innerHTML=kv([['Cut-off date',long(c.cut)],['Start date',long(c.start)],['End date',long(c.end)],['Payroll month',c.payroll],['Payroll type',GROUP_LABEL[g]],['AR format',(e.status==='SPES'||e.status==='GIP')?'Daily (one row per day)':'Weekly grouped']]);
   }else $('homeCut').innerHTML='<span>Cut-off</span><span>None set up for '+GROUP_LABEL[g]+'</span>';
-  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Birthday',e.birthday?long(parse(e.birthday)):'—'],['Payroll type',g],['AR format',(e.status==='SPES'||e.status==='GIP')?'Daily (one row per day)':'Weekly grouped'],['Emergency contact person',e.emergName||'—'],['Emergency contact number',e.emergNumber||'—'],['Sector',e.sector||'—'],['CP number',e.cell||'—'],['Email address',e.email||'—'],['Civil status',e.civil||'—']]);
+  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor||'—'],['Division',e.division||'—'],['Section',e.section||'—'],['Unit',e.unit||'—'],['Birthday',e.birthday?long(parse(e.birthday)):'—'],['Emergency contact person',e.emergName||'—'],['Emergency contact number',e.emergNumber||'—'],['Sector',e.sector||'—'],['CP number',e.cell||'—'],['Email address',e.email||'—'],['Civil status',e.civil||'—']]);
   const ee=e.eeStart?parse(e.eeStart):null,jo=e.joStart?parse(e.joStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
   const first=[ee,jo,pl].filter(Boolean).sort((a,b)=>a-b)[0]||null;
   const ten=[['Date today',long(today)]];
@@ -908,13 +979,14 @@ function saveAct(){
 }
 
 /* ================= EMPLOYEES ================= */
-const EM_FIELDS=[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor','sup'],['supPosition','Supervisor position','ro'],
-  ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['salaryGrade','Salary grade (PLANTILLA only)','sg'],['csePro','CSE Professional','chk'],['cseNon','CSE Non-professional','chk'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['civil','Civil status','civil'],['sex','Sex','sex'],['email','Email address'],
+const EM_FIELDS=[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['division','Division','div'],['section','Section','sec'],['unit','Unit','unit'],['supervisor','Division Head','ro'],['supPosition','POSITION','ro'],['sectionHead','Section Head','ro'],['unitHead','Unit Head','ro'],
+  ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['salaryGrade','Salary grade (PLANTILLA only)','sg'],['cse','CSE','cse'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['civil','Civil status','civil'],['sex','Sex','sex'],['email','Email address'],
   ['eeStart','Start as EE','date'],['joStart','Start as COS','date'],['plantillaStart','Start as plantilla','date'],['transferDate','Date of transfer (to this division)','date'],['endDate','End date','date'],['birthday','Birthday','date'],
   ['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],
   ['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],
   ['education','Highest educational attainment','edu'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],
   ['emergName','Emergency contact person'],['emergNumber','Emergency contact number']];
+const CSE_TYPES=['CSE Professional','CSE Non-professional'];
 const EDU_LEVELS=['ELEMENTARY','HIGH SCHOOL (OLD CURRICULUM)','JUNIOR HIGH SCHOOL','SENIOR HIGH SCHOOL','SENIOR HIGH SCHOOL UNDERGRADUATE','TECH VOC','COLLEGE GRADUATE','COLLEGE UNDERGRADUATE','GRADUATE SCHOOL'];
 const CIVIL=['SINGLE','MARRIED','WIDOWED','SEPARATED','ANNULLED'];
 const SEXES=['MALE','FEMALE','GAY','LESBIAN','QUEER'];
@@ -928,13 +1000,14 @@ function emFormHtml(){
   }).join('');
 }
 function emField(f,id){
+    if(f[2]==='cse')return '<label style="min-width:190px">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+CSE_TYPES.map(v=>'<option>'+v+'</option>').join('')+'</select></label>';
     if(f[2]==='chk')return '<label class="chk" style="min-width:190px"><input type="checkbox" id="'+id+'"> '+f[1]+'</label>';
     if(f[2]==='sg')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">—</option>'+Array.from({length:33},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label>';
     if(f[2]==='civil')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+CIVIL.map(v=>'<option>'+v+'</option>').join('')+'</select></label>';
     if(f[2]==='sex')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+SEXES.map(v=>'<option>'+v+'</option>').join('')+'</select></label>';
     if(f[2]==='edu')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+EDU_LEVELS.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
     if(f[2]==='select')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'">'+EMP_STATUSES.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
-    if(f[2]==='sup'||f[2]==='sector')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"></select></label>';
+    if(f[2]==='div'||f[2]==='sec'||f[2]==='unit'||f[2]==='sector')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"></select></label>';
     if(f[2]==='ro')return '<label style="min-width:190px;flex:1">'+f[1]+' (auto)<input id="'+id+'" type="text" readonly style="background:#eef2f9"></label>';
     return '<label style="min-width:190px;flex:1">'+f[1]+'<input id="'+id+'" type="'+(f[2]||'text')+'"></label>';
 }
@@ -947,28 +1020,58 @@ function fillSel(id,vals,ph,val){
   el.innerHTML='<option value="">'+ph+'</option>'+list.map(v=>'<option>'+esc(v)+'</option>').join('');
   el.value=cur;
 }
-function refreshEmSelects(supVal,secVal){
-  fillSel('em_supervisor',S.supervisors.map(x=>x.name),'— Select supervisor —',supVal);
-  fillSel('em_sector',S.sectors.map(x=>x.name),'— Select sector —',secVal);
+function refreshEmSelects(v){
+  v=v||{};
+  fillSel('em_division',S.divisions.map(x=>x.name),'— Select division —',v.division);
+  fillSel('em_section',S.sections.map(x=>x.name),'— Select section —',v.section);
+  fillSel('em_unit',S.units.map(x=>x.name),'— Select unit —',v.unit);
+  fillSel('em_sector',S.sectors.map(x=>x.name),'— Select sector —',v.sector);
 }
-const chkBox=v=>'<input type="checkbox" disabled'+(v?' checked':'')+'>';
+/* Resolve the three organizational head levels from the selected employee structure. */
+function findOrgHead(division,section,unit,level){
+  return S.supervisors.find(x=>{
+    if(x.division!==division||!division)return false;
+    const sec=String(x.section||''),un=String(x.unit||'');
+    if(level==='division')return !sec&&!un;
+    if(level==='section')return !!section&&sec===section&&!un;
+    return !!section&&!!unit&&sec===section&&un===unit;
+  })||null;
+}
+function syncEmSup(){
+  const d=$('em_division').value,sec=$('em_section').value,un=$('em_unit').value;
+  const dh=findOrgHead(d,'','', 'division');
+  const sh=sec?findOrgHead(d,sec,'','section'):null;
+  const uh=sec&&un?findOrgHead(d,sec,un,'unit'):null;
+  $('em_supervisor').value=dh?dh.name:'';
+  $('em_supPosition').value=dh?dh.position:'';
+  $('em_sectionHead').value=sh?sh.name:'';
+  $('em_unitHead').value=uh?uh.name:'';
+}
 function renderEmployees(){
-  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Salary grade','CSE Professional','CSE Non-professional','Payroll type','Cellphone','QC ID','Sector','Civil status','Sex','Email','Start as EE','Start as COS','Start as plantilla','Date of transfer','End date','Birthday','Address','SSS','GSIS','TIN','PhilHealth','Pag-IBIG','Highest education','Course (college)','Course (graduate school)','Emergency contact','Emergency number'];
+  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Division Head','POSITION','Section Head','Unit Head','Division','Section','Unit','Sched in','Sched out','Status','Salary grade','CSE','Payroll type','Cellphone','QC ID','Sector','Civil status','Sex','Email','Start as EE','Start as COS','Start as plantilla','Date of transfer','End date','Birthday','Address','SSS','GSIS','TIN','PhilHealth','Pag-IBIG','Highest education','Course (college)','Course (graduate school)','Emergency contact','Emergency number'];
   $('emTbl').innerHTML='<thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'<th></th></tr></thead><tbody>'+S.employees.map(e=>
-    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+(e.status==='PLANTILLA'?esc(e.salaryGrade):'')+'</td><td style="text-align:center">'+chkBox(e.csePro)+'</td><td style="text-align:center">'+chkBox(e.cseNon)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.civil)+'</td><td>'+esc(e.sex)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.eeStart?long(parse(e.eeStart)):'')+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td><td style="white-space:nowrap">'+(e.transferDate?long(parse(e.transferDate)):'')+'</td><td style="white-space:nowrap">'+(e.endDate?long(parse(e.endDate)):'')+'</td><td style="white-space:nowrap">'+(e.birthday?long(parse(e.birthday)):'')+'</td><td>'+esc(emAddr(e))+'</td><td>'+esc(e.sss)+'</td><td>'+esc(e.gsis)+'</td><td>'+esc(e.tin)+'</td><td>'+esc(e.philhealth)+'</td><td>'+esc(e.pagibig)+'</td><td>'+esc(e.education)+'</td><td>'+esc(e.collegeCourse)+'</td><td>'+esc(e.gradCourse)+'</td><td>'+esc(e.emergName)+'</td><td>'+esc(e.emergNumber)+'</td>'+
+    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.sectionHead)+'</td><td>'+esc(e.unitHead)+'</td><td>'+esc(e.division)+'</td><td>'+esc(e.section)+'</td><td>'+esc(e.unit)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+(e.status==='PLANTILLA'?esc(e.salaryGrade):'')+'</td><td>'+esc(e.cse)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.civil)+'</td><td>'+esc(e.sex)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.eeStart?long(parse(e.eeStart)):'')+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td><td style="white-space:nowrap">'+(e.transferDate?long(parse(e.transferDate)):'')+'</td><td style="white-space:nowrap">'+(e.endDate?long(parse(e.endDate)):'')+'</td><td style="white-space:nowrap">'+(e.birthday?long(parse(e.birthday)):'')+'</td><td>'+esc(emAddr(e))+'</td><td>'+esc(e.sss)+'</td><td>'+esc(e.gsis)+'</td><td>'+esc(e.tin)+'</td><td>'+esc(e.philhealth)+'</td><td>'+esc(e.pagibig)+'</td><td>'+esc(e.education)+'</td><td>'+esc(e.collegeCourse)+'</td><td>'+esc(e.gradCourse)+'</td><td>'+esc(e.emergName)+'</td><td>'+esc(e.emergNumber)+'</td>'+
     '<td style="white-space:nowrap"><button class="link" data-a="edit-em" data-id="'+esc(e.id)+'">Edit</button><button class="link del" data-a="del-em" data-id="'+esc(e.id)+'">Delete</button></td></tr>').join('')+'</tbody>';
   refreshEmSelects();
+  syncEmSup();
   const O=S.office;
   const of=[['name','Office name'],['address','Address'],['verifier','DTR verified by'],['verifierPos','Verifier position'],['lunchOut','Lunch out (DTR)'],['lunchIn','Lunch in (DTR)']];
   $('ofForm').innerHTML=of.map(f=>'<label style="min-width:220px;flex:1">'+f[1]+'<input data-of="'+f[0]+'" value="'+esc(O[f[0]])+'"></label>').join('');
 }
 function resetEm(){
-  edit.em=null;EM_FIELDS.forEach(f=>emSet(f,''));$('em_status').value='PLANTILLA';refreshEmSelects('','');syncSg();
+  edit.em=null;EM_FIELDS.forEach(f=>emSet(f,''));$('em_status').value='PLANTILLA';refreshEmSelects({division:'',section:'',unit:'',sector:''});syncEmSup();syncSg();
   $('emTitle').textContent='Add employee';$('emSave').textContent='Add';$('emCancel').style.display='none';
 }
 function saveEm(){
   const r={};EM_FIELDS.forEach(f=>r[f[0]]=emGet(f));
   if(r.status!=='PLANTILLA')r.salaryGrade='';
+  {
+    const dh=findOrgHead(r.division,'','','division');
+    const sh=r.section?findOrgHead(r.division,r.section,'','section'):null;
+    const uh=r.section&&r.unit?findOrgHead(r.division,r.section,r.unit,'unit'):null;
+    r.supervisor=dh?dh.name:'';r.supPosition=dh?dh.position:'';
+    r.sectionHead=sh?sh.name:'';r.unitHead=uh?uh.name:'';
+  }
   if(!r.id||!r.last||!r.first){alert('Employee ID, last name and first name are required.');return;}
   if(S.employees.some(e=>e.id===r.id&&e.id!==edit.em)){alert('That employee ID already exists.');return;}
   if(r.endDate){const st=[r.joStart,r.eeStart,r.plantillaStart].filter(Boolean).sort()[0];if(st&&r.endDate<st){alert('End date cannot be earlier than the start date.');return;}}
@@ -1062,19 +1165,21 @@ function saveWx(){
 }
 function renderSupervisors(){
   const list=S.supervisors.slice().sort((a,b)=>a.name<b.name?-1:1);
-  $('svTbl').innerHTML='<thead><tr><th>Supervisor name</th><th>Position</th><th></th></tr></thead><tbody>'+
-    (list.length?list.map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.position)+'</td>'+rowBtns('sv',v.id)+'</tr>').join(''):'<tr><td colspan="3" class="empty">No supervisors yet.</td></tr>')+'</tbody>';
+  $('svTbl').innerHTML='<thead><tr><th>Name</th><th>Position</th><th>Division</th><th>Section</th><th>Unit</th><th></th></tr></thead><tbody>'+
+    (list.length?list.map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.position)+'</td><td>'+esc(v.division)+'</td><td>'+esc(v.section)+'</td><td>'+esc(v.unit)+'</td>'+rowBtns('sv',v.id)+'</tr>').join(''):'<tr><td colspan="6" class="empty">No heads yet.</td></tr>')+'</tbody>';
 }
-function resetSv(){edit.sv=null;$('svName').value='';$('svPos').value='';$('svTitle').textContent='Add supervisor';$('svSave').textContent='Add';$('svCancel').style.display='none';}
+function fillSvDiv(v){fillSel('svDiv',S.divisions.map(x=>x.name),'— Select division —',v);fillSel('svSection',S.sections.map(x=>x.name),'— No section —');fillSel('svUnit',S.units.map(x=>x.name),'— No unit —');}
+function resetSv(){edit.sv=null;$('svName').value='';$('svPos').value='';fillSvDiv('');$('svTitle').textContent='Add division / section / unit head';$('svSave').textContent='Add';$('svCancel').style.display='none';}
 function saveSv(){
-  const n=$('svName').value.trim().toUpperCase(),p=$('svPos').value.trim();
-  if(!n||!p){alert('Enter the supervisor name and position.');return;}
-  if(S.supervisors.some(x=>x.name.toLowerCase()===n.toLowerCase()&&x.id!==edit.sv)){alert('That supervisor is already in the list.');return;}
-  if(edit.sv){
-    const v=S.supervisors.find(x=>x.id===edit.sv);
-    S.employees.forEach(e=>{if(e.supervisor===v.name){e.supervisor=n;e.supPosition=p;}});
-    v.name=n;v.position=p;
-  }else S.supervisors.push({id:uid(),name:n,position:p});
+  const n=$('svName').value.trim().toUpperCase(),p=$('svPos').value.trim(),dv=$('svDiv').value,section=$('svSection').value,unit=$('svUnit').value;
+  if(!n||!p||!dv){alert('Enter the name, position and division.');return;}
+  if(unit&&!section){alert('Select a section before selecting a unit.');return;}
+  const duplicate=S.supervisors.find(x=>x.id!==edit.sv&&x.division===dv&&(x.section||'')===section&&(x.unit||'')===unit);
+  if(duplicate){alert('This Division / Section / Unit already has a head ('+duplicate.name+').');return;}
+  if(S.supervisors.some(x=>x.name.toLowerCase()===n.toLowerCase()&&x.id!==edit.sv)){alert('That name is already in the list.');return;}
+  const r={name:n,position:p,division:dv,section,unit};
+  if(edit.sv)Object.assign(S.supervisors.find(x=>x.id===edit.sv),r);
+  else S.supervisors.push(Object.assign({id:uid()},r));
   save();resetSv();renderAll();
 }
 function renderSectors(){
@@ -1088,6 +1193,34 @@ function saveSc(){
   if(edit.sc){const x=S.sectors.find(y=>y.id===edit.sc);S.employees.forEach(e=>{if(e.sector===x.name)e.sector=n;});x.name=n;}
   else S.sectors.push({id:uid(),name:n});
   save();resetSc();renderAll();
+}
+
+/* ---- Divisions / Sections / Units (Settings) ---- */
+const ORG=[
+  {k:'dv',list:'divisions',label:'Division',plural:'Divisions',field:'division'},
+  {k:'sn',list:'sections',label:'Section',plural:'Sections',field:'section'},
+  {k:'un',list:'units',label:'Unit',plural:'Units',field:'unit'}
+];
+function renderOrg(){
+  ORG.forEach(o=>{
+    const L=S[o.list];
+    $(o.k+'Tbl').innerHTML='<thead><tr><th>'+o.label+'</th><th></th></tr></thead><tbody>'+
+      (L.length?L.map(x=>'<tr><td>'+esc(x.name)+'</td>'+rowBtns(o.k,x.id)+'</tr>').join(''):'<tr><td colspan="2" class="empty">None</td></tr>')+'</tbody>';
+  });
+  fillSvDiv();
+}
+function resetOrg(o){edit[o.k]=null;$(o.k+'Name').value='';$(o.k+'Title').textContent=o.plural;$(o.k+'Save').textContent='Add';$(o.k+'Cancel').style.display='none';}
+function saveOrg(o){
+  const n=$(o.k+'Name').value.trim();if(!n){alert('Enter a '+o.label.toLowerCase()+' name.');return;}
+  const L=S[o.list];
+  if(L.some(x=>x.name.toLowerCase()===n.toLowerCase()&&x.id!==edit[o.k])){alert('That '+o.label.toLowerCase()+' already exists.');return;}
+  if(edit[o.k]){
+    const x=L.find(y=>y.id===edit[o.k]),old=x.name;
+    S.employees.forEach(e=>{if(e[o.field]===old)e[o.field]=n;});
+    if(o.field==='division')S.supervisors.forEach(v=>{if(v.division===old)v.division=n;});
+    x.name=n;
+  }else L.push({id:uid(),name:n});
+  save();resetOrg(o);renderAll();
 }
 const otOf=id=>S.overtime.filter(o=>o.emp===id);
 const otHours=list=>list.reduce((s,o)=>s+(+o.hours||0),0);
@@ -1192,7 +1325,7 @@ function renderAll(){applyAppName();
   updateEmpSelect();updateCutSelect();fillYearFilter();
   const e=emp();
   $('hdrWho').innerHTML=e?'<strong>'+esc(empName(e))+'</strong><br><span style="opacity:.85">'+esc(e.position)+'</span>':'';
-  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderWork();renderSupervisors();renderSectors();renderOT();
+  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderWork();renderSupervisors();renderSectors();renderOrg();renderOT();
   save();
 }
 const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],workexp:['emp'],supervisors:[],trainings:['emp','tyear'],overtime:['year','otcut','emp'],settings:[]};
@@ -1233,11 +1366,14 @@ function doPrint(){
 /* ================= EXCEL DATABASE (File System Access API + SheetJS) ================= */
 const XL_TYPES=[{description:'Excel workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}];
 const XL_SCHEMA=[
-  {sheet:'Employees',key:'employees',req:['id','last','first'],date:['joStart','eeStart','plantillaStart','birthday','transferDate','endDate'],time:['schedIn','schedOut'],bool:['csePro','cseNon'],up:['status','education','civil','sex'],
-   cols:[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor'],['supPosition','Supervisor position'],['schedIn','Sched in'],['schedOut','Sched out'],['status','Status'],['salaryGrade','Salary grade'],['csePro','CSE Professional (YES/NO)'],['cseNon','CSE Non-professional (YES/NO)'],['cell','Cellphone'],['qcId','QC ID'],['sector','Sector'],['civil','Civil status'],['sex','Sex'],['email','Email'],['eeStart','Start as EE'],['joStart','Start as COS','Start in QC (JO/COS)'],['plantillaStart','Start as plantilla'],['birthday','Birthday'],['transferDate','Date of transfer (to this division)'],['endDate','End date'],['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],['education','Highest educational attainment'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],['emergName','Emergency contact person'],['emergNumber','Emergency contact number']]},
+  {sheet:'Employees',key:'employees',req:['id','last','first'],date:['joStart','eeStart','plantillaStart','birthday','transferDate','endDate'],time:['schedIn','schedOut'],up:['status','education','civil','sex'],
+   cols:[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Division Head'],['supPosition','Division Head Position'],['sectionHead','Section Head'],['unitHead','Unit Head'],['division','Division'],['section','Section'],['unit','Unit'],['schedIn','Sched in'],['schedOut','Sched out'],['status','Status'],['salaryGrade','Salary grade'],['cse','CSE (CSE Professional / CSE Non-professional)'],['cell','Cellphone'],['qcId','QC ID'],['sector','Sector'],['civil','Civil status'],['sex','Sex'],['email','Email'],['eeStart','Start as EE'],['joStart','Start as COS','Start in QC (JO/COS)'],['plantillaStart','Start as plantilla'],['birthday','Birthday'],['transferDate','Date of transfer (to this division)'],['endDate','End date'],['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],['education','Highest educational attainment'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],['emergName','Emergency contact person'],['emergNumber','Emergency contact number']]},
   {sheet:'WorkExperience',key:'workexp',req:['emp','start','position'],date:['start','end'],up:['appt','gov'],
    cols:[['id','ID'],['emp','Employee ID'],['start','Start date'],['end','End date'],['position','Position / title'],['agency','Department / agency / office / company'],['salary','Pay grade & step / increment'],['salaryAmt','Salary amount'],['appt','Status of appointment'],['gov','Gov\'t service (YES / NO)']]},
-  {sheet:'Supervisors',key:'supervisors',req:['name'],cols:[['id','ID'],['name','Supervisor name'],['position','Position']]},
+  {sheet:'Supervisors',key:'supervisors',req:['name'],cols:[['id','ID'],['name','Head name'],['position','Position'],['division','Division'],['section','Section'],['unit','Unit']]},
+  {sheet:'Divisions',key:'divisions',req:['name'],cols:[['id','ID'],['name','Division']]},
+  {sheet:'Sections',key:'sections',req:['name'],cols:[['id','ID'],['name','Section']]},
+  {sheet:'Units',key:'units',req:['name'],cols:[['id','ID'],['name','Unit']]},
   {sheet:'Sectors',key:'sectors',req:['name'],cols:[['id','ID'],['name','Sector']]},
   {sheet:'Cutoffs',key:'cutoffs',req:['type','cutoff','payroll','start','end'],date:['cutoff','start','end'],month:['payroll'],up:['type'],
    cols:[['id','ID'],['type','Payroll type (REGULAR / MONTHLY)'],['cutoff','Cut-off date'],['payroll','Payroll month'],['start','Start date'],['end','End date']]},
@@ -1313,6 +1449,8 @@ function xlParse(wb){
     if(!aoa.length){out[sc.key]=[];return;}
     const hdr=aoa[0].map(h=>String(h).trim().toLowerCase()),idx={};
     sc.cols.forEach(c=>{let i=hdr.indexOf(c[1].toLowerCase());if(i<0&&c[2])i=hdr.indexOf(c[2].toLowerCase());if(i<0)i=hdr.indexOf(c[0].toLowerCase());idx[c[0]]=i;});
+    const legP=hdr.indexOf('cse professional (yes/no)'),legN=hdr.indexOf('cse non-professional (yes/no)');
+    const yes=v=>/^(yes|true|y|1)$/i.test(String(v==null?'':v).trim());
     const list=[];
     aoa.slice(1).forEach(row=>{
       if(row.every(v=>v===''||v==null))return;
@@ -1326,6 +1464,13 @@ function xlParse(wb){
         else if((sc.bool||[]).includes(k))o[k]=/^(yes|true|y|1)$/i.test(String(v).trim());
         else{o[k]=String(v==null?'':v).trim();if((sc.up||[]).includes(k))o[k]=o[k].toUpperCase();}
       });
+      if(sc.key==='employees'){
+        const c=String(o.cse||'').trim();
+        if(c)o.cse=/non/i.test(c)?'CSE Non-professional':'CSE Professional';
+        else if(legP>=0&&yes(row[legP]))o.cse='CSE Professional';
+        else if(legN>=0&&yes(row[legN]))o.cse='CSE Non-professional';
+        else o.cse='';
+      }
       if(sc.req.some(k=>!o[k]))return;
       if(sc.key!=='employees'&&!o.id)o.id=uid();
       list.push(o);
@@ -1344,6 +1489,7 @@ function xlApply(parts){
   XL_SCHEMA.forEach(sc=>{if(parts[sc.key])S[sc.key]=parts[sc.key];});
   if(parts.office)S.office=Object.assign({},makeDefaults().office,parts.office);
   S.employees.forEach(e=>{delete e.mi;});
+  migrateOrg(S);
   renderAll();
 }
 
@@ -1515,7 +1661,7 @@ function xlClick(ev){
   $('actCancel').onclick=resetAct;
 
   /* employees */
-  $('em_supervisor').onchange=()=>{const sv=S.supervisors.find(x=>x.name===$('em_supervisor').value);$('em_supPosition').value=sv?sv.position:'';};
+  ['em_division','em_section','em_unit'].forEach(id=>$(id).onchange=syncEmSup);
   $('emSave').onclick=saveEm;
   $('emCancel').onclick=resetEm;
   $('appNameSave').onclick=()=>{const v=$('appNameIn').value.trim();if(!v){alert('Please type a name for the app.');return;}S.office.appName=v;save();renderAll();};
@@ -1583,6 +1729,7 @@ function xlClick(ev){
   /* supervisors & sectors */
   $('svSave').onclick=saveSv;$('svCancel').onclick=resetSv;
   $('scSave').onclick=saveSc;$('scCancel').onclick=resetSc;
+  ORG.forEach(o=>{$(o.k+'Save').onclick=()=>saveOrg(o);$(o.k+'Cancel').onclick=()=>resetOrg(o);});
 
   /* backup */
   $('exp').onclick=()=>{
@@ -1613,7 +1760,7 @@ function xlClick(ev){
       if(confirm('Delete this activity?')){S.activities=S.activities.filter(y=>y.id!==id);if(edit.act===id)resetAct();renderAll();}
     }else if(a==='edit-em'){
       const x=S.employees.find(y=>y.id===id);if(!x)return;
-      edit.em=id;refreshEmSelects(x.supervisor||'',x.sector||'');EM_FIELDS.forEach(f=>emSet(f,x[f[0]]));syncSg();
+      edit.em=id;refreshEmSelects({division:x.division||'',section:x.section||'',unit:x.unit||'',sector:x.sector||''});EM_FIELDS.forEach(f=>emSet(f,x[f[0]]));syncEmSup();syncSg();
       $('emTitle').textContent='Edit employee';$('emSave').textContent='Save changes';$('emCancel').style.display='';tl($('emTitle'));
     }else if(a==='del-em'){
       if(S.employees.length<2){alert('At least one employee is required.');return;}
@@ -1664,11 +1811,18 @@ function xlClick(ev){
       if(confirm('Delete this training?')){S.trainings=S.trainings.filter(y=>y.id!==id);if(edit.tr===id)resetTr();renderAll();}
     }else if(a==='edit-sv'){
       const x=S.supervisors.find(y=>y.id===id);if(!x)return;
-      edit.sv=id;$('svName').value=x.name;$('svPos').value=x.position;$('svTitle').textContent='Edit supervisor';$('svSave').textContent='Save changes';$('svCancel').style.display='';tl($('svTitle'));
+      edit.sv=id;$('svName').value=x.name;$('svPos').value=x.position;fillSvDiv(x.division||'');$('svSection').value=x.section||'';$('svUnit').value=x.unit||'';$('svTitle').textContent='Edit head';$('svSave').textContent='Save changes';$('svCancel').style.display='';tl($('svTitle'));
     }else if(a==='del-sv'){
       const x=S.supervisors.find(y=>y.id===id);if(!x)return;
       const n=S.employees.filter(e=>e.supervisor===x.name).length;
-      if(confirm('Delete supervisor "'+x.name+'"?'+(n?' '+n+' employee(s) currently use this supervisor and will keep the name as typed.':''))){S.supervisors=S.supervisors.filter(y=>y.id!==id);if(edit.sv===id)resetSv();renderAll();}
+      if(confirm('Delete supervisor "'+x.name+'"?'+(n?' '+n+' employee(s) currently use this supervisor'+(x.division?' (through the '+x.division+' division) and will show no supervisor until another one is assigned to that division.':' and will keep the name as typed.'):''))){S.supervisors=S.supervisors.filter(y=>y.id!==id);if(edit.sv===id)resetSv();renderAll();}
+    }else if(a==='edit-dv'||a==='edit-sn'||a==='edit-un'){
+      const o=ORG.find(q=>'edit-'+q.k===a),x=S[o.list].find(y=>y.id===id);if(!x)return;
+      edit[o.k]=id;$(o.k+'Name').value=x.name;$(o.k+'Title').textContent='Edit '+o.label.toLowerCase();$(o.k+'Save').textContent='Save changes';$(o.k+'Cancel').style.display='';tl($(o.k+'Title'));
+    }else if(a==='del-dv'||a==='del-sn'||a==='del-un'){
+      const o=ORG.find(q=>'del-'+q.k===a),x=S[o.list].find(y=>y.id===id);if(!x)return;
+      const n=S.employees.filter(e=>e[o.field]===x.name).length+(o.field==='division'?S.supervisors.filter(v=>v.division===x.name).length:0);
+      if(confirm('Delete '+o.label.toLowerCase()+' "'+x.name+'"?'+(n?' '+n+' employee/supervisor record(s) currently use it and will keep the value.':''))){S[o.list]=S[o.list].filter(y=>y.id!==id);if(edit[o.k]===id)resetOrg(o);renderAll();}
     }else if(a==='edit-sc'){
       const x=S.sectors.find(y=>y.id===id);if(!x)return;
       edit.sc=id;$('scName').value=x.name;$('scTitle').textContent='Edit sector';$('scSave').textContent='Save changes';$('scCancel').style.display='';tl($('scTitle'));
