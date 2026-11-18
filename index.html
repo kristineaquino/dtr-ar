@@ -133,7 +133,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
 <body>
 <div class="topfix no-print">
 <header class="top">
-  <h1>PESO DTR &amp; AR Portal<small>Daily Time Record • Accomplishment Reports • Trainings • Overtime • Leave Usage</small></h1>
+  <h1><span id="appNameH">PESO DTR &amp; AR Portal</span><small>Daily Time Record • Accomplishment Reports • Trainings • Overtime • Leave Usage</small></h1>
   <div id="xlChip" style="font-size:12px;display:flex;align-items:center;gap:8px;color:var(--gold-l)"></div>
   <div id="hdrWho" style="font-size:13px;text-align:right"></div>
 </header>
@@ -145,8 +145,9 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <button data-v="trainings">Trainings</button>
   <button data-v="overtime">Overtime Tracker</button>
   <button data-v="leave">Leave Usage</button>
-  <button data-v="activities">Individual Activities</button>
+  <button data-v="activities">Activities</button>
   <button data-v="employees">Employees</button>
+  <button data-v="workexp">Work Experience</button>
   <button data-v="supervisors">Supervisors</button>
   <button data-v="settings">Settings</button>
 </nav>
@@ -225,7 +226,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
         <label style="flex:1;min-width:280px">Purpose / remarks<input id="otRem"></label>
         <button class="btn" id="otSave">Add</button><button class="btn alt" id="otCancel" style="display:none">Cancel</button>
       </div>
-      <p class="note">4 hours of overtime = 1 day of offset. Offsets used come from the OFFSET entries in Individual Activities.</p>
+      <p class="note">4 hours of overtime = 1 day of offset. Offsets used come from the OFFSET entries in Activities.</p>
     </div>
     <div class="card">
       <h2 id="otListTitle">Overtime records</h2>
@@ -277,9 +278,8 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <!-- EMPLOYEES -->
   <section class="view" id="v-employees">
     <div class="card">
-      <h2>Employees</h2>
-      <div class="scroll"><table class="tbl" id="emTbl"></table></div>
-    </div>
+      <h2>Office &amp; DTR details</h2>
+      <div class="form-row" id="ofForm"></div>
     <div class="card">
       <h2 id="emTitle">Add employee</h2>
       <div class="form-row" id="emForm"></div>
@@ -287,8 +287,36 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
       <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS are REGULAR, SPES / GIP / EE are MONTHLY. Supervisor and Sector are dropdowns (managed in the Supervisors page and Settings); the supervisor's position fills in automatically. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name). The earliest of Start as COS / EE / plantilla is the first day of service and the End date is the last day: the DTR, AR and WFH Report show nothing (not even dates) outside that range. Employees tagged RESIGNED or TRANSFERRED no longer appear in the Employee dropdown.</p>
     </div>
     <div class="card">
-      <h2>Office &amp; DTR details</h2>
-      <div class="form-row" id="ofForm"></div>
+      <h2>Employees</h2>
+      <div class="scroll"><table class="tbl" id="emTbl"></table></div>
+    </div>
+    </div>
+  </section>
+
+  <!-- WORK EXPERIENCE -->
+  <section class="view" id="v-workexp">
+    <div class="card">
+      <h2 id="wxTitle">Add work experience</h2>
+      <div class="form-row">
+        <label>Start date<input type="date" id="wxStart"></label>
+        <label>End date (blank = present)<input type="date" id="wxEnd"></label>
+        <label style="flex:1;min-width:220px">Position / title<input id="wxPos"></label>
+      </div>
+      <div class="form-row">
+        <label style="flex:2;min-width:300px">Department / agency / office / company (write in full, do not abbreviate)<input id="wxAgency"></label>
+        <label style="flex:1;min-width:220px">Pay grade &amp; step (format "00-0") / increment<input id="wxSal" placeholder="e.g. 11-1"></label>
+        <label style="flex:1;min-width:180px">Salary amount<input id="wxSalAmt" type="number" min="0" step="0.01" placeholder="e.g. 25000.00"></label>
+      </div>
+      <div class="form-row">
+        <label>Status of appointment<select id="wxAppt"><option value="">— Select —</option><option>PERMANENT</option><option>CONTRACT OF SERVICE</option><option>REGULAR</option><option>JOB ORDER</option><option>PROBATIONARY</option></select></label>
+        <label>Gov't service<select id="wxGov"><option>YES</option><option>NO</option></select></label>
+      </div>
+      <p><button class="btn" id="wxSave">Add</button> <button class="btn alt" id="wxCancel" style="display:none">Cancel</button></p>
+      <p class="note">Work experience is kept per employee (choose the employee in the filter bar). Leave the End date blank for the present job. Newest work experience is listed first.</p>
+    </div>
+    <div class="card">
+      <h2 id="wxListTitle">Work experience</h2>
+      <div class="scroll"><table class="tbl" id="wxTbl"></table></div>
     </div>
   </section>
 
@@ -311,6 +339,15 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
 
   <!-- SETTINGS -->
   <section class="view" id="v-settings">
+    <div class="card">
+      <h2>Rename this app</h2>
+      <div class="form-row">
+        <label style="flex:1;min-width:280px">App name (shown in the header and browser tab)<input id="appNameIn" placeholder="PESO DTR &amp; AR Portal"></label>
+        <button class="btn" id="appNameSave">Save name</button>
+        <button class="btn alt" id="appNameReset">Reset to default</button>
+      </div>
+      <p class="note">Changes the name of the app from “PESO DTR &amp; AR Portal” to any name you want. It does not affect printed DTR or AR forms.</p>
+    </div>
     <div class="card">
       <h2>Excel database</h2>
       <p id="xlStat" style="margin:0 0 10px;font-size:13px"></p>
@@ -447,8 +484,8 @@ function makeDefaults(){
   const monthly=genMonthly(2026).concat(genMonthly(2027));
   const may=monthly.find(c=>c.cutoff==='2026-05-31'); if(may) may.cutoff='2026-05-30';
   return {
-    office:{name:'PUBLIC EMPLOYMENT SERVICE OFFICE',address:'6F Civic Center Building A, Quezon City Hall',verifier:'ROGELIO L. REYES, MCD',verifierPos:'City Government Department Head III',lunchOut:'12:00',lunchIn:'1:00'},
-    employees:[{id:E,last:'AQUINO',first:'KRISTINE',middle:'D.',position:'LABOR EMPLOYMENT OFFICER II',supervisor:'MARIA TERESA A. GUARDIANO, MEM, LPT',supPosition:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',schedIn:'8:00',schedOut:'5:00 PM',status:'PLANTILLA',mondayStatus:'REGULAR ACTIVITY',cell:'',qcId:'',sector:'PWD',email:'',joStart:'2022-01-03',plantillaStart:'2024-03-06'}],
+    office:{appName:'PESO DTR & AR Portal',name:'PUBLIC EMPLOYMENT SERVICE OFFICE',address:'6F Civic Center Building A, Quezon City Hall',verifier:'ROGELIO L. REYES, MCD',verifierPos:'City Government Department Head III',lunchOut:'12:00',lunchIn:'1:00'},
+    employees:[{id:E,last:'AQUINO',first:'KRISTINE',middle:'D.',position:'LABOR EMPLOYMENT OFFICER II',supervisor:'MARIA TERESA A. GUARDIANO, MEM, LPT',supPosition:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',schedIn:'8:00',schedOut:'5:00 PM',status:'PLANTILLA',mondayStatus:'REGULAR ACTIVITY',cell:'',qcId:'',sector:'PWD',email:'',joStart:'',plantillaStart:'',eeStart:'',birthday:''}],
     cutoffs:genRegular(2026).concat(genRegular(2027),monthly),
     holidays:[
       ['2026-04-02','HOLY WEEK'],['2026-04-03','HOLY WEEK'],['2026-04-09','DAY OF VALOR'],['2026-05-01','LABOR DAY'],
@@ -480,8 +517,7 @@ function makeDefaults(){
       W('2026-08-18',"Professional Development\n- Continued advancement in the Coursera Data Analytics Certification program to enhance quantitative analysis and technical reporting capabilities.\n\nStakeholder & Partner Engagement\n- Attended an exploratory meeting with Yamahei to discuss potential collaboration opportunities.\n- Drafted and finalized the official Minutes of the Meeting (MOM) for record-keeping and follow-up actions.\n\nProgram Planning & Development\n- Continued the drafting and refinement of the Concept Paper for the upcoming CERP Stakeholders Day.\n\nProgram Coordination\n- Facilitated coordination with beneficiaries of the Special Program for Employment of Students (SPES) who will be participating in the Young Workers' Ambassadors program."),
       L('2026-08-20','Vacation Leave'),
       W('2026-09-10',"Professional Development\n- Continued advancement in the Coursera Data Analytics Certification program to enhance quantitative analysis and technical reporting capabilities.\n\nStakeholder & Partner Engagement\n- Updated MOU draft of Yamahei\n- Updated Letter of Requests to various divisions regarding MATCHA\n- Updated Letter of Requests to various divisions regarding YAMAHEI"),
-      L('2026-09-21','Sick Leave'),L('2026-09-22','Sick Leave'),
-      L('2026-11-19','Wellness Leave'),L('2026-11-20','Wellness Leave'),L('2026-12-07','Vacation Leave')
+      L('2026-09-21','Sick Leave'),L('2026-09-22','Sick Leave')
     ],
     supervisors:[
       {id:uid(),name:'MARIA TERESA A. GUARDIANO, MEM, LPT',position:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION'},
@@ -489,6 +525,7 @@ function makeDefaults(){
     ],
     sectors:['PWD','SENIOR','EMPLOYED','UNEMPLOYED','NEET','IN-SCHOOL','SOLO PARENT'].map(x=>({id:uid(),name:x})),
     trainings:[],
+    workexp:[],
     overtime:[],
     sel:{emp:E,cut:null}
   };
@@ -509,7 +546,7 @@ function load(){
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}try{xlSchedule();}catch(e){}}
 let S=load();
-const edit={ot:null,co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
+const edit={wx:null,ot:null,co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
 
 /* ================= HELPERS ================= */
 const INACTIVE=['RESIGNED','TRANSFERRED'];
@@ -726,18 +763,20 @@ function renderHome(){
   if(c){
     $('homeCut').innerHTML=kv([['Cut-off date',long(c.cut)],['Start date',long(c.start)],['End date',long(c.end)],['Payroll month',c.payroll],['Payroll type',GROUP_LABEL[g]]]);
   }else $('homeCut').innerHTML='<span>Cut-off</span><span>None set up for '+GROUP_LABEL[g]+'</span>';
-  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Birthday',e.birthday?long(parse(e.birthday)):'—'],['Payroll type',g],['AR format',(e.status==='SPES'||e.status==='GIP')?'Daily (one row per day)':'Weekly grouped']]);
-  const jo=e.joStart?parse(e.joStart):null,ee=e.eeStart?parse(e.eeStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
-  const first=jo||ee||pl;
+  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Birthday',e.birthday?long(parse(e.birthday)):'—'],['Payroll type',g],['AR format',(e.status==='SPES'||e.status==='GIP')?'Daily (one row per day)':'Weekly grouped'],['Emergency contact person',e.emergName||'—'],['Emergency contact number',e.emergNumber||'—'],['Sector',e.sector||'—'],['CP number',e.cell||'—'],['Email address',e.email||'—'],['Civil status',e.civil||'—']]);
+  const ee=e.eeStart?parse(e.eeStart):null,jo=e.joStart?parse(e.joStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
+  const first=[ee,jo,pl].filter(Boolean).sort((a,b)=>a-b)[0]||null;
   const ten=[['Date today',long(today)]];
   if(first)ten.push(['Date hired (first start)',long(first)]);
-  if(jo)ten.push(['Date as COS',long(jo)]);
-  if(ee)ten.push(['Date as EE',long(ee)]);
-  if(pl)ten.push(['Date as plantilla',long(pl)]);
+  /* order: EE, COS, plantilla. A stage runs until the next strictly later start date, otherwise until today.
+     If EE and COS start on the same date, both rows show the same data. */
+  const stages=[['EE',ee],['COS',jo],['plantilla',pl]].filter(x=>x[1]);
+  stages.forEach(x=>ten.push(['Date as '+x[0],long(x[1])]));
   if(first)ten.push(['Tenure in QC',tenure(first,today)]);
-  if(jo&&(ee||pl))ten.push(['Tenure as COS',tenure(jo,ee||pl)]);
-  if(ee&&pl)ten.push(['Tenure as EE',tenure(ee,pl)]);
-  if(pl)ten.push(['Tenure as plantilla',tenure(pl,today)]);
+  stages.forEach(x=>{
+    const later=stages.map(y=>y[1]).filter(d=>d>x[1]).sort((a,b)=>a-b)[0];
+    ten.push(['Tenure as '+x[0],tenure(x[1],later||today)]);
+  });
   $('homeTen').innerHTML=kv(ten);
   const f=k=>long(parse(k));
   if(c){
@@ -777,7 +816,7 @@ function renderLeave(){
   $('lvMine').innerHTML='<thead><tr><th>Leave type</th><th>Allotment</th><th>Used</th><th>Remaining</th></tr></thead><tbody>'+
     u.map(x=>'<tr><td>'+esc(x.t.name)+'</td><td>'+n2(x.allot)+'</td><td>'+n2(x.used)+'</td><td><strong>'+n2(x.rem)+'</strong></td></tr>').join('')+'</tbody>';
   const mon=S.leaveTypes.filter(t=>t.accrual==='MONTHLY').map(t=>t.name+' +'+t.amount+'/month');
-  $('lvNote').textContent=(mon.length?'Accrual: '+mon.join(', ')+', credited on the 1st of each month from January to December and reset every January. ':'')+'“Used” counts the leaves filed in Individual Activities for '+year+'.';
+  $('lvNote').textContent=(mon.length?'Accrual: '+mon.join(', ')+', credited on the 1st of each month from January to December and reset every January. ':'')+'“Used” counts the leaves filed in Activities for '+year+'.';
   }
   let h1='<tr><th rowspan="2">Employee</th>',h2='<tr>';
   S.leaveTypes.forEach(t=>{h1+='<th colspan="3">'+esc(t.name)+'</th>';h2+='<th>Allot.</th><th>Used</th><th>Rem.</th>';});
@@ -870,14 +909,16 @@ function saveAct(){
 
 /* ================= EMPLOYEES ================= */
 const EM_FIELDS=[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor','sup'],['supPosition','Supervisor position','ro'],
-  ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['mondayStatus','Monday status'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['email','Email address'],
-  ['joStart','Start as COS','date'],['eeStart','Start as EE','date'],['plantillaStart','Start as plantilla','date'],['transferDate','Date of transfer (to this division)','date'],['endDate','End date','date'],['birthday','Birthday','date'],
+  ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['salaryGrade','Salary grade (PLANTILLA only)','sg'],['csePro','CSE Professional','chk'],['cseNon','CSE Non-professional','chk'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['civil','Civil status','civil'],['sex','Sex','sex'],['email','Email address'],
+  ['eeStart','Start as EE','date'],['joStart','Start as COS','date'],['plantillaStart','Start as plantilla','date'],['transferDate','Date of transfer (to this division)','date'],['endDate','End date','date'],['birthday','Birthday','date'],
   ['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],
   ['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],
   ['education','Highest educational attainment','edu'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],
   ['emergName','Emergency contact person'],['emergNumber','Emergency contact number']];
 const EDU_LEVELS=['ELEMENTARY','HIGH SCHOOL (OLD CURRICULUM)','JUNIOR HIGH SCHOOL','SENIOR HIGH SCHOOL','SENIOR HIGH SCHOOL UNDERGRADUATE','TECH VOC','COLLEGE GRADUATE','COLLEGE UNDERGRADUATE','GRADUATE SCHOOL'];
-const EM_HEAD={id:'Employee details',joStart:'Employment dates (leave a start date blank if it does not apply)',houseNo:'Address',sss:'Government ID numbers',education:'Education',emergName:'Emergency contact'};
+const CIVIL=['SINGLE','MARRIED','WIDOWED','SEPARATED','ANNULLED'];
+const SEXES=['MALE','FEMALE','GAY','LESBIAN','QUEER'];
+const EM_HEAD={id:'Employee details',eeStart:'Employment dates (leave a start date blank if it does not apply)',houseNo:'Address',sss:'Government ID numbers',education:'Education',emergName:'Emergency contact'};
 const emAddr=e=>[e.houseNo,e.street,e.barangay?'Brgy. '+e.barangay:'',e.district,e.city,e.province,e.zip].map(x=>String(x||'').trim()).filter(Boolean).join(', ');
 function emFormHtml(){
   return EM_FIELDS.map(f=>{
@@ -887,12 +928,19 @@ function emFormHtml(){
   }).join('');
 }
 function emField(f,id){
+    if(f[2]==='chk')return '<label class="chk" style="min-width:190px"><input type="checkbox" id="'+id+'"> '+f[1]+'</label>';
+    if(f[2]==='sg')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">—</option>'+Array.from({length:33},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label>';
+    if(f[2]==='civil')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+CIVIL.map(v=>'<option>'+v+'</option>').join('')+'</select></label>';
+    if(f[2]==='sex')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+SEXES.map(v=>'<option>'+v+'</option>').join('')+'</select></label>';
     if(f[2]==='edu')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+EDU_LEVELS.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
     if(f[2]==='select')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'">'+EMP_STATUSES.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
     if(f[2]==='sup'||f[2]==='sector')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"></select></label>';
     if(f[2]==='ro')return '<label style="min-width:190px;flex:1">'+f[1]+' (auto)<input id="'+id+'" type="text" readonly style="background:#eef2f9"></label>';
     return '<label style="min-width:190px;flex:1">'+f[1]+'<input id="'+id+'" type="'+(f[2]||'text')+'"></label>';
 }
+const emGet=f=>f[2]==='chk'?$('em_'+f[0]).checked:$('em_'+f[0]).value.trim();
+const emSet=(f,v)=>{if(f[2]==='chk')$('em_'+f[0]).checked=!!v;else $('em_'+f[0]).value=v||'';};
+function syncSg(){const pl=$('em_status').value==='PLANTILLA',el=$('em_salaryGrade');el.disabled=!pl;if(!pl)el.value='';}
 function fillSel(id,vals,ph,val){
   const el=$(id),cur=val!==undefined?val:el.value,list=vals.slice();
   if(cur&&!list.includes(cur))list.push(cur);
@@ -903,10 +951,11 @@ function refreshEmSelects(supVal,secVal){
   fillSel('em_supervisor',S.supervisors.map(x=>x.name),'— Select supervisor —',supVal);
   fillSel('em_sector',S.sectors.map(x=>x.name),'— Select sector —',secVal);
 }
+const chkBox=v=>'<input type="checkbox" disabled'+(v?' checked':'')+'>';
 function renderEmployees(){
-  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Monday status','Payroll type','Cellphone','QC ID','Sector','Email','Start as COS','Start as EE','Start as plantilla','Date of transfer','End date','Birthday','Address','SSS','GSIS','TIN','PhilHealth','Pag-IBIG','Highest education','Course (college)','Course (graduate school)','Emergency contact','Emergency number'];
+  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Salary grade','CSE Professional','CSE Non-professional','Payroll type','Cellphone','QC ID','Sector','Civil status','Sex','Email','Start as EE','Start as COS','Start as plantilla','Date of transfer','End date','Birthday','Address','SSS','GSIS','TIN','PhilHealth','Pag-IBIG','Highest education','Course (college)','Course (graduate school)','Emergency contact','Emergency number'];
   $('emTbl').innerHTML='<thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'<th></th></tr></thead><tbody>'+S.employees.map(e=>
-    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+esc(e.mondayStatus)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.eeStart?long(parse(e.eeStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td><td style="white-space:nowrap">'+(e.transferDate?long(parse(e.transferDate)):'')+'</td><td style="white-space:nowrap">'+(e.endDate?long(parse(e.endDate)):'')+'</td><td style="white-space:nowrap">'+(e.birthday?long(parse(e.birthday)):'')+'</td><td>'+esc(emAddr(e))+'</td><td>'+esc(e.sss)+'</td><td>'+esc(e.gsis)+'</td><td>'+esc(e.tin)+'</td><td>'+esc(e.philhealth)+'</td><td>'+esc(e.pagibig)+'</td><td>'+esc(e.education)+'</td><td>'+esc(e.collegeCourse)+'</td><td>'+esc(e.gradCourse)+'</td><td>'+esc(e.emergName)+'</td><td>'+esc(e.emergNumber)+'</td>'+
+    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+(e.status==='PLANTILLA'?esc(e.salaryGrade):'')+'</td><td style="text-align:center">'+chkBox(e.csePro)+'</td><td style="text-align:center">'+chkBox(e.cseNon)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.civil)+'</td><td>'+esc(e.sex)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.eeStart?long(parse(e.eeStart)):'')+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td><td style="white-space:nowrap">'+(e.transferDate?long(parse(e.transferDate)):'')+'</td><td style="white-space:nowrap">'+(e.endDate?long(parse(e.endDate)):'')+'</td><td style="white-space:nowrap">'+(e.birthday?long(parse(e.birthday)):'')+'</td><td>'+esc(emAddr(e))+'</td><td>'+esc(e.sss)+'</td><td>'+esc(e.gsis)+'</td><td>'+esc(e.tin)+'</td><td>'+esc(e.philhealth)+'</td><td>'+esc(e.pagibig)+'</td><td>'+esc(e.education)+'</td><td>'+esc(e.collegeCourse)+'</td><td>'+esc(e.gradCourse)+'</td><td>'+esc(e.emergName)+'</td><td>'+esc(e.emergNumber)+'</td>'+
     '<td style="white-space:nowrap"><button class="link" data-a="edit-em" data-id="'+esc(e.id)+'">Edit</button><button class="link del" data-a="del-em" data-id="'+esc(e.id)+'">Delete</button></td></tr>').join('')+'</tbody>';
   refreshEmSelects();
   const O=S.office;
@@ -914,18 +963,19 @@ function renderEmployees(){
   $('ofForm').innerHTML=of.map(f=>'<label style="min-width:220px;flex:1">'+f[1]+'<input data-of="'+f[0]+'" value="'+esc(O[f[0]])+'"></label>').join('');
 }
 function resetEm(){
-  edit.em=null;EM_FIELDS.forEach(f=>{$('em_'+f[0]).value='';});$('em_status').value='PLANTILLA';refreshEmSelects('','');
-  $('em_mondayStatus').value='REGULAR ACTIVITY';$('emTitle').textContent='Add employee';$('emSave').textContent='Add';$('emCancel').style.display='none';
+  edit.em=null;EM_FIELDS.forEach(f=>emSet(f,''));$('em_status').value='PLANTILLA';refreshEmSelects('','');syncSg();
+  $('emTitle').textContent='Add employee';$('emSave').textContent='Add';$('emCancel').style.display='none';
 }
 function saveEm(){
-  const r={};EM_FIELDS.forEach(f=>r[f[0]]=$('em_'+f[0]).value.trim());
+  const r={};EM_FIELDS.forEach(f=>r[f[0]]=emGet(f));
+  if(r.status!=='PLANTILLA')r.salaryGrade='';
   if(!r.id||!r.last||!r.first){alert('Employee ID, last name and first name are required.');return;}
   if(S.employees.some(e=>e.id===r.id&&e.id!==edit.em)){alert('That employee ID already exists.');return;}
   if(r.endDate){const st=[r.joStart,r.eeStart,r.plantillaStart].filter(Boolean).sort()[0];if(st&&r.endDate<st){alert('End date cannot be earlier than the start date.');return;}}
   r.last=r.last.toUpperCase();r.first=r.first.toUpperCase();r.middle=r.middle.toUpperCase();
   if(edit.em){
     const old=S.employees.find(e=>e.id===edit.em);
-    if(old.id!==r.id){S.activities.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.trainings.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.overtime.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});if(S.sel.emp===old.id)S.sel.emp=r.id;}
+    if(old.id!==r.id){S.activities.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.trainings.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.overtime.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});(S.workexp||[]).forEach(a=>{if(a.emp===old.id)a.emp=r.id;});if(S.sel.emp===old.id)S.sel.emp=r.id;}
     Object.assign(old,r);delete old.mi;
   }else{S.employees.push(r);}
   save();resetEm();renderAll();
@@ -987,6 +1037,28 @@ function saveTr(){
   if(edit.tr)Object.assign(S.trainings.find(t=>t.id===edit.tr),r);else S.trainings.push(Object.assign({id:uid(),emp:e.id},r));
   S.sel.tyear=r.start.slice(0,4);
   save();resetTr();renderAll();
+}
+/* ================= WORK EXPERIENCE ================= */
+function renderWork(){
+  const e=emp();
+  if(!e){$('wxListTitle').textContent='Work experience';$('wxTbl').innerHTML='<tbody><tr><td class="empty">No active employee.</td></tr></tbody>';return;}
+  const rows=(S.workexp||[]).filter(w=>w.emp===e.id).sort((a,b)=>a.start<b.start?1:(a.start>b.start?-1:0));
+  $('wxListTitle').textContent='Work experience – '+empName(e);
+  $('wxTbl').innerHTML='<thead><tr><th>Start date</th><th>End date</th><th>Position / title</th><th>Department / agency / office / company</th><th>Pay grade &amp; step / increment</th><th>Salary amount</th><th>Status of appointment</th><th>Gov\'t service</th><th></th></tr></thead><tbody>'+
+    (rows.length?rows.map(w=>'<tr><td style="white-space:nowrap">'+long(parse(w.start))+'</td><td style="white-space:nowrap">'+(w.end?long(parse(w.end)):'Present')+'</td><td>'+esc(w.position)+'</td><td>'+esc(w.agency)+'</td><td>'+esc(w.salary)+'</td><td style="text-align:right">'+(w.salaryAmt!==''&&w.salaryAmt!=null&&!isNaN(w.salaryAmt)?Number(w.salaryAmt).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}):esc(w.salaryAmt||''))+'</td><td>'+esc(w.appt)+'</td><td>'+esc(w.gov)+'</td>'+rowBtns('wx',w.id)+'</tr>').join(''):'<tr><td colspan="9" class="empty">No work experience recorded.</td></tr>')+'</tbody>';
+}
+function resetWx(){
+  edit.wx=null;['wxStart','wxEnd','wxPos','wxAgency','wxSal','wxSalAmt'].forEach(i=>$(i).value='');$('wxAppt').value='';$('wxGov').value='YES';
+  $('wxTitle').textContent='Add work experience';$('wxSave').textContent='Add';$('wxCancel').style.display='none';
+}
+function saveWx(){
+  const e=emp();if(!e)return;
+  const r={start:$('wxStart').value,end:$('wxEnd').value,position:$('wxPos').value.trim(),agency:$('wxAgency').value.trim(),salary:$('wxSal').value.trim(),salaryAmt:$('wxSalAmt').value.trim(),appt:$('wxAppt').value,gov:$('wxGov').value};
+  if(!r.start||!r.position||!r.agency||!r.appt){alert('Fill in the start date, position / title, department / agency / office / company and status of appointment.');return;}
+  if(r.end&&r.end<r.start){alert('End date must be on or after the start date.');return;}
+  if(!S.workexp)S.workexp=[];
+  if(edit.wx)Object.assign(S.workexp.find(w=>w.id===edit.wx),r);else S.workexp.push(Object.assign({id:uid(),emp:e.id},r));
+  save();resetWx();renderAll();
 }
 function renderSupervisors(){
   const list=S.supervisors.slice().sort((a,b)=>a.name<b.name?-1:1);
@@ -1110,14 +1182,20 @@ function updateCutSelect(keepPayroll){
   $('otCut').innerHTML='<option value="">All cut-offs</option>'+ol.map(c=>'<option value="'+c.id+'">'+cutLabel(c)+'</option>').join('');
   $('otCut').value=S.sel.otcut||'';
 }
-function renderAll(){
+const APP_DEFAULT='PESO DTR & AR Portal';
+function applyAppName(){
+  const n=(S.office&&S.office.appName||'').trim()||APP_DEFAULT;
+  document.title=n;const h=$('appNameH');if(h)h.textContent=n;
+  const i=$('appNameIn');if(i&&document.activeElement!==i)i.value=n;
+}
+function renderAll(){applyAppName();
   updateEmpSelect();updateCutSelect();fillYearFilter();
   const e=emp();
   $('hdrWho').innerHTML=e?'<strong>'+esc(empName(e))+'</strong><br><span style="opacity:.85">'+esc(e.position)+'</span>':'';
-  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderSupervisors();renderSectors();renderOT();
+  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderWork();renderSupervisors();renderSectors();renderOT();
   save();
 }
-const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],supervisors:[],trainings:['emp','tyear'],overtime:['year','otcut','emp'],settings:[]};
+const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],workexp:['emp'],supervisors:[],trainings:['emp','tyear'],overtime:['year','otcut','emp'],settings:[]};
 let curView='home';
 function show(v){
   curView=v;
@@ -1155,8 +1233,10 @@ function doPrint(){
 /* ================= EXCEL DATABASE (File System Access API + SheetJS) ================= */
 const XL_TYPES=[{description:'Excel workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}];
 const XL_SCHEMA=[
-  {sheet:'Employees',key:'employees',req:['id','last','first'],date:['joStart','eeStart','plantillaStart','birthday','transferDate','endDate'],time:['schedIn','schedOut'],up:['status','mondayStatus','education'],
-   cols:[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor'],['supPosition','Supervisor position'],['schedIn','Sched in'],['schedOut','Sched out'],['status','Status'],['mondayStatus','Monday status'],['cell','Cellphone'],['qcId','QC ID'],['sector','Sector'],['email','Email'],['joStart','Start as COS','Start in QC (JO/COS)'],['eeStart','Start as EE'],['plantillaStart','Start as plantilla'],['birthday','Birthday'],['transferDate','Date of transfer (to this division)'],['endDate','End date'],['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],['education','Highest educational attainment'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],['emergName','Emergency contact person'],['emergNumber','Emergency contact number']]},
+  {sheet:'Employees',key:'employees',req:['id','last','first'],date:['joStart','eeStart','plantillaStart','birthday','transferDate','endDate'],time:['schedIn','schedOut'],bool:['csePro','cseNon'],up:['status','education','civil','sex'],
+   cols:[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor'],['supPosition','Supervisor position'],['schedIn','Sched in'],['schedOut','Sched out'],['status','Status'],['salaryGrade','Salary grade'],['csePro','CSE Professional (YES/NO)'],['cseNon','CSE Non-professional (YES/NO)'],['cell','Cellphone'],['qcId','QC ID'],['sector','Sector'],['civil','Civil status'],['sex','Sex'],['email','Email'],['eeStart','Start as EE'],['joStart','Start as COS','Start in QC (JO/COS)'],['plantillaStart','Start as plantilla'],['birthday','Birthday'],['transferDate','Date of transfer (to this division)'],['endDate','End date'],['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],['education','Highest educational attainment'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],['emergName','Emergency contact person'],['emergNumber','Emergency contact number']]},
+  {sheet:'WorkExperience',key:'workexp',req:['emp','start','position'],date:['start','end'],up:['appt','gov'],
+   cols:[['id','ID'],['emp','Employee ID'],['start','Start date'],['end','End date'],['position','Position / title'],['agency','Department / agency / office / company'],['salary','Pay grade & step / increment'],['salaryAmt','Salary amount'],['appt','Status of appointment'],['gov','Gov\'t service (YES / NO)']]},
   {sheet:'Supervisors',key:'supervisors',req:['name'],cols:[['id','ID'],['name','Supervisor name'],['position','Position']]},
   {sheet:'Sectors',key:'sectors',req:['name'],cols:[['id','ID'],['name','Sector']]},
   {sheet:'Cutoffs',key:'cutoffs',req:['type','cutoff','payroll','start','end'],date:['cutoff','start','end'],month:['payroll'],up:['type'],
@@ -1172,7 +1252,7 @@ const XL_SCHEMA=[
   {sheet:'Overtime',key:'overtime',req:['emp','date'],date:['date'],num:['hours'],
    cols:[['id','ID'],['emp','Employee ID'],['date','Date'],['hours','Overtime hours'],['remarks','Purpose / remarks']]}
 ];
-const XL_OFFICE=[['name','Office name'],['address','Address'],['verifier','DTR verified by'],['verifierPos','Verifier position'],['lunchOut','Lunch out (DTR)'],['lunchIn','Lunch in (DTR)']];
+const XL_OFFICE=[['appName','App name'],['name','Office name'],['address','Address'],['verifier','DTR verified by'],['verifierPos','Verifier position'],['lunchOut','Lunch out (DTR)'],['lunchIn','Lunch in (DTR)']];
 const xl={h:null,name:'',state:'off',mod:0,last:null,busy:false,timer:null,err:'',lastJson:''};
 const xlOK=()=>typeof XLSX!=='undefined';
 const xlFS=()=>!!(window.showOpenFilePicker&&window.showSaveFilePicker);
@@ -1208,7 +1288,7 @@ function xlTime(v,suf){
 /* --- state -> workbook --- */
 function xlBuild(){
   const wb=XLSX.utils.book_new();
-  const rd=[['PESO DTR & AR Portal – database'],[''],['Each sheet is one table. Please do not change the ID columns or the header rows.'],['Dates: YYYY-MM-DD (e.g. 2026-05-26). Payroll month: YYYY-MM.'],['Close this file in Excel while the portal is open, otherwise the portal cannot save to it.'],[''],['Last saved by the portal',new Date().toLocaleString()]];
+  const rd=[[(S.office.appName||'PESO DTR & AR Portal')+' – database'],[''],['Each sheet is one table. Please do not change the ID columns or the header rows.'],['Dates: YYYY-MM-DD (e.g. 2026-05-26). Payroll month: YYYY-MM.'],['Close this file in Excel while the portal is open, otherwise the portal cannot save to it.'],[''],['Last saved by the portal',new Date().toLocaleString()]];
   const w0=XLSX.utils.aoa_to_sheet(rd);w0['!cols']=[{wch:90},{wch:24}];
   XLSX.utils.book_append_sheet(wb,w0,'README');
   XL_SCHEMA.forEach(sc=>{
@@ -1399,7 +1479,7 @@ function xlClick(ev){
   $('gnYear').value=nowY+1;
   $('actType').innerHTML=ACTS.map(a=>'<option>'+a+'</option>').join('');
   $('emForm').innerHTML=emFormHtml();
-  resetEm();resetAct();
+  resetEm();resetAct();resetWx();
   applyPaper();
   renderAll();
   const v=(location.hash||'#home').slice(1);
@@ -1438,6 +1518,8 @@ function xlClick(ev){
   $('em_supervisor').onchange=()=>{const sv=S.supervisors.find(x=>x.name===$('em_supervisor').value);$('em_supPosition').value=sv?sv.position:'';};
   $('emSave').onclick=saveEm;
   $('emCancel').onclick=resetEm;
+  $('appNameSave').onclick=()=>{const v=$('appNameIn').value.trim();if(!v){alert('Please type a name for the app.');return;}S.office.appName=v;save();renderAll();};
+  $('appNameReset').onclick=()=>{S.office.appName=APP_DEFAULT;save();renderAll();};
   $('ofForm').onchange=e=>{const k=e.target.dataset.of;if(!k)return;S.office[k]=e.target.value.trim();save();renderAll();};
 
   /* cut-offs */
@@ -1497,6 +1579,7 @@ function xlClick(ev){
   /* trainings */
   $('trnYear').onchange=()=>{S.sel.tyear=$('trnYear').value;renderAll();};
   $('trSave').onclick=saveTr;$('trCancel').onclick=resetTr;
+  $('wxSave').onclick=saveWx;$('wxCancel').onclick=resetWx;$('em_status').onchange=syncSg;
   /* supervisors & sectors */
   $('svSave').onclick=saveSv;$('svCancel').onclick=resetSv;
   $('scSave').onclick=saveSc;$('scCancel').onclick=resetSc;
@@ -1530,11 +1613,11 @@ function xlClick(ev){
       if(confirm('Delete this activity?')){S.activities=S.activities.filter(y=>y.id!==id);if(edit.act===id)resetAct();renderAll();}
     }else if(a==='edit-em'){
       const x=S.employees.find(y=>y.id===id);if(!x)return;
-      edit.em=id;refreshEmSelects(x.supervisor||'',x.sector||'');EM_FIELDS.forEach(f=>$('em_'+f[0]).value=x[f[0]]||'');
+      edit.em=id;refreshEmSelects(x.supervisor||'',x.sector||'');EM_FIELDS.forEach(f=>emSet(f,x[f[0]]));syncSg();
       $('emTitle').textContent='Edit employee';$('emSave').textContent='Save changes';$('emCancel').style.display='';tl($('emTitle'));
     }else if(a==='del-em'){
       if(S.employees.length<2){alert('At least one employee is required.');return;}
-      if(confirm('Delete this employee and all of their activities?')){S.employees=S.employees.filter(y=>y.id!==id);S.activities=S.activities.filter(y=>y.emp!==id);S.trainings=S.trainings.filter(y=>y.emp!==id);S.overtime=S.overtime.filter(y=>y.emp!==id);if(edit.em===id)resetEm();renderAll();}
+      if(confirm('Delete this employee and all of their activities?')){S.employees=S.employees.filter(y=>y.id!==id);S.activities=S.activities.filter(y=>y.emp!==id);S.trainings=S.trainings.filter(y=>y.emp!==id);S.overtime=S.overtime.filter(y=>y.emp!==id);S.workexp=(S.workexp||[]).filter(y=>y.emp!==id);if(edit.em===id)resetEm();renderAll();}
     }else if(a==='edit-co'){
       const x=S.cutoffs.find(y=>y.id===id);if(!x)return;
       edit.co=id;$('coType').value=x.type;$('coCut').value=x.cutoff;$('coPay').value=x.payroll;$('coStart').value=x.start;$('coEnd').value=x.end;
@@ -1567,6 +1650,12 @@ function xlClick(ev){
       const b=offBalance(x.emp),after=b.earned-(+x.hours||0)/OT_PER_DAY;
       const warn=after<b.used-1e-9?' Offsets already used ('+b.used+' day(s)) will then exceed the overtime earned ('+n2(after)+' day(s)).':'';
       if(confirm('Delete this overtime record?'+warn)){S.overtime=S.overtime.filter(y=>y.id!==id);if(edit.ot===id)resetOt();renderAll();}
+    }else if(a==='edit-wx'){
+      const x=(S.workexp||[]).find(y=>y.id===id);if(!x)return;
+      edit.wx=id;$('wxStart').value=x.start;$('wxEnd').value=x.end||'';$('wxPos').value=x.position;$('wxAgency').value=x.agency;$('wxSal').value=x.salary||'';$('wxSalAmt').value=x.salaryAmt||'';$('wxAppt').value=x.appt;$('wxGov').value=x.gov||'NO';
+      $('wxTitle').textContent='Edit work experience';$('wxSave').textContent='Save changes';$('wxCancel').style.display='';tl($('wxTitle'));
+    }else if(a==='del-wx'){
+      if(confirm('Delete this work experience?')){S.workexp=(S.workexp||[]).filter(y=>y.id!==id);if(edit.wx===id)resetWx();renderAll();}
     }else if(a==='edit-tr'){
       const x=S.trainings.find(y=>y.id===id);if(!x)return;
       edit.tr=id;$('trName').value=x.name;$('trStart').value=x.start;$('trEnd').value=x.end;$('trHrs').value=x.hours;$('trType').value=x.type;$('trBy').value=x.by;
