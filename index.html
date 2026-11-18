@@ -133,7 +133,8 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
 <body>
 <div class="topfix no-print">
 <header class="top">
-  <h1>PESO DTR &amp; AR Portal<small>Daily Time Record • Accomplishment Reports • Trainings • Leave Usage</small></h1>
+  <h1>PESO DTR &amp; AR Portal<small>Daily Time Record • Accomplishment Reports • Trainings • Overtime • Leave Usage</small></h1>
+  <div id="xlChip" style="font-size:12px;display:flex;align-items:center;gap:8px;color:var(--gold-l)"></div>
   <div id="hdrWho" style="font-size:13px;text-align:right"></div>
 </header>
 <nav class="tabs" id="tabs">
@@ -142,6 +143,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <button data-v="ar">Accomplishment Report</button>
   <button data-v="wfh">WFH Report</button>
   <button data-v="trainings">Trainings</button>
+  <button data-v="overtime">Overtime Tracker</button>
   <button data-v="leave">Leave Usage</button>
   <button data-v="activities">Individual Activities</button>
   <button data-v="employees">Employees</button>
@@ -153,6 +155,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
 <div class="toolbar no-print" id="toolbar">
   <label data-t="year">Year<select id="selYear" style="min-width:90px"></select></label>
   <label data-t="cut">Cut-off<select id="cutoff"></select></label>
+  <label data-t="otcut">Cut-off<select id="otCut"></select></label>
   <label data-t="tyear">Year<select id="trnYear" style="min-width:90px"></select></label>
   <label data-t="emp">Employee<select id="empSel"></select></label>
   <label data-t="paper">Paper<select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="Legal">Legal / Long</option></select></label>
@@ -161,6 +164,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <button class="btn" id="printBtn" data-t="print">Print</button>
 </div>
 <div class="banner no-print" id="printNote"></div>
+<div class="banner no-print" id="xlBanner"></div>
 
 <main>
   <!-- HOME -->
@@ -210,6 +214,29 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
     </div>
   </section>
 
+  <!-- OVERTIME TRACKER -->
+  <section class="view" id="v-overtime">
+    <div class="card"><h2 id="otPillTitle">Overtime summary</h2><div class="pills" id="otPills"></div><p class="note" id="otNote"></p></div>
+    <div class="card">
+      <h2 id="otTitle">Add overtime</h2>
+      <div class="form-row">
+        <label>Date<input type="date" id="otDate"></label>
+        <label>Overtime hours<input type="number" min="0" step="0.25" id="otHrs" style="width:110px"></label>
+        <label style="flex:1;min-width:280px">Purpose / remarks<input id="otRem"></label>
+        <button class="btn" id="otSave">Add</button><button class="btn alt" id="otCancel" style="display:none">Cancel</button>
+      </div>
+      <p class="note">4 hours of overtime = 1 day of offset. Offsets used come from the OFFSET entries in Individual Activities.</p>
+    </div>
+    <div class="card">
+      <h2 id="otListTitle">Overtime records</h2>
+      <div class="scroll"><table class="tbl" id="otTbl"></table></div>
+    </div>
+    <div class="card">
+      <h2>Offsets used (selected period)</h2>
+      <div class="scroll"><table class="tbl" id="otUsedTbl"></table></div>
+    </div>
+  </section>
+
   <!-- LEAVE USAGE -->
   <section class="view" id="v-leave">
     <div class="card">
@@ -230,12 +257,15 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
     <div class="card">
       <h2 id="actTitle">Add activity</h2>
       <div class="form-row">
+        <label>Apply to<select id="actGroup"></select></label>
         <label>Date<input type="date" id="actDate"></label>
         <label>To date (optional, weekdays only)<input type="date" id="actTo"></label>
         <label>Activity<select id="actType"></select></label>
         <label>Leave type<select id="actLeave"></select></label>
       </div>
       <label style="font-size:11px;color:var(--muted)">Remarks / tasks accomplished<textarea id="actRemarks" rows="5" style="width:100%" placeholder="For WORK FROM HOME: list the tasks accomplished"></textarea></label>
+      <p class="note" id="actOffNote"></p>
+      <p class="note">Group entry: choose a group (for example All SPES or All GIP) to file the same activity for everyone in it. Holidays and whole-day suspensions are skipped, and anyone who already has an entry on a date is left unchanged. Edit individual entries afterwards for absences or other activities.</p>
       <p><button class="btn" id="actSave">Add</button> <button class="btn alt" id="actCancel" style="display:none">Cancel</button></p>
     </div>
     <div class="card">
@@ -254,7 +284,7 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
       <h2 id="emTitle">Add employee</h2>
       <div class="form-row" id="emForm"></div>
       <p><button class="btn" id="emSave">Add</button> <button class="btn alt" id="emCancel" style="display:none">Cancel</button></p>
-      <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS / EE are REGULAR, SPES / GIP are MONTHLY. Supervisor and Sector are dropdowns (managed in the Supervisors page and Settings); the supervisor's position fills in automatically. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name).</p>
+      <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS are REGULAR, SPES / GIP / EE are MONTHLY. Supervisor and Sector are dropdowns (managed in the Supervisors page and Settings); the supervisor's position fills in automatically. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name). The earliest of Start as COS / EE / plantilla is the first day of service and the End date is the last day: the DTR, AR and WFH Report show nothing (not even dates) outside that range. Employees tagged RESIGNED or TRANSFERRED no longer appear in the Employee dropdown.</p>
     </div>
     <div class="card">
       <h2>Office &amp; DTR details</h2>
@@ -282,9 +312,22 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   <!-- SETTINGS -->
   <section class="view" id="v-settings">
     <div class="card">
+      <h2>Excel database</h2>
+      <p id="xlStat" style="margin:0 0 10px;font-size:13px"></p>
+      <div class="form-row">
+        <button class="btn" id="xlOpen">Open existing Excel file</button>
+        <button class="btn" id="xlCreate">Create new Excel file</button>
+        <button class="btn alt" id="xlReconnect" style="display:none">Reconnect</button>
+        <button class="btn alt" id="xlDisc" style="display:none">Disconnect</button>
+        <button class="btn alt" id="xlExport">Download a copy (.xlsx)</button>
+        <label class="btn alt" style="display:inline-block;cursor:pointer">Import from .xlsx<input type="file" id="xlImport" accept=".xlsx,.xls" hidden></label>
+      </div>
+      <p class="note">Once connected, every change is saved straight into that Excel file (one sheet per table) and the file is loaded each time you open the portal. Works in Chrome and Edge. Keep the file closed in Excel while using the portal, otherwise saving is blocked.</p>
+    </div>
+    <div class="card">
       <h2 id="coTitle">Cut-offs</h2>
       <div class="form-row">
-        <label>Payroll type<select id="coType"><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <label>Payroll type<select id="coType"><option value="REGULAR">PLANTILLA / COS</option><option value="MONTHLY">SPES / GIP / EE</option></select></label>
         <label>Cut-off date<input type="date" id="coCut"></label>
         <label>Payroll month<input type="month" id="coPay"></label>
         <label>Start date<input type="date" id="coStart"></label>
@@ -293,12 +336,12 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
       </div>
       <div class="form-row">
         <label>Generate a full year<input type="number" id="gnYear" min="2020" max="2100" style="width:100px"></label>
-        <label>Payroll type<select id="gnType"><option value="BOTH">Both types</option><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <label>Payroll type<select id="gnType"><option value="BOTH">Both types</option><option value="REGULAR">PLANTILLA / COS</option><option value="MONTHLY">SPES / GIP / EE</option></select></label>
         <button class="btn alt" id="gnBtn">Generate</button>
-        <label>Show type<select id="coFType"><option value="ALL">All</option><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <label>Show type<select id="coFType"><option value="ALL">All</option><option value="REGULAR">PLANTILLA / COS</option><option value="MONTHLY">SPES / GIP / EE</option></select></label>
         <label>Show year<select id="coFYear"></select></label>
       </div>
-      <p class="note">PLANTILLA / COS / EE: 26th to 25th, paid the following month. SPES / GIP: whole calendar month. Dates fill in automatically when you pick the cut-off date; you can still change them.</p>
+      <p class="note">PLANTILLA / COS: 26th to 25th, paid the following month. SPES / GIP / EE: whole calendar month. Dates fill in automatically when you pick the cut-off date; you can still change them.</p>
       <div class="scroll tall"><table class="tbl" id="coTbl"></table></div>
     </div>
 
@@ -358,11 +401,14 @@ table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
   </section>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ================= CONSTANTS & DEFAULT DATA (from the KRISTINE - DTR workbook) ================= */
-const ACTS=['REGULAR ACTIVITY','WORK FROM HOME','LEAVE'];
+const ACTS=['REGULAR ACTIVITY','WORK FROM HOME','LEAVE','OFFSET'];
+const OT_PER_DAY=4;
 const STATUSES=['PLANTILLA','COS','EE','SPES','GIP'];
-const GROUP_LABEL={REGULAR:'PLANTILLA / COS / EE',MONTHLY:'SPES / GIP'};
+const EMP_STATUSES=STATUSES.concat(['RESIGNED','TRANSFERRED']); // employee-form dropdown only
+const GROUP_LABEL={REGULAR:'PLANTILLA / COS',MONTHLY:'SPES / GIP / EE'};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const PAPERS={A4:{w:297,h:210,land:'A4 landscape',port:'A4 portrait'},Letter:{w:279.4,h:215.9,land:'letter landscape',port:'letter portrait'},Legal:{w:355.6,h:215.9,land:'13in 8.5in',port:'8.5in 13in'}};
@@ -443,6 +489,7 @@ function makeDefaults(){
     ],
     sectors:['PWD','SENIOR','EMPLOYED','UNEMPLOYED','NEET','IN-SCHOOL','SOLO PARENT'].map(x=>({id:uid(),name:x})),
     trainings:[],
+    overtime:[],
     sel:{emp:E,cut:null}
   };
 }
@@ -460,13 +507,22 @@ function load(){
   }catch(e){}
   return d;
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}try{xlSchedule();}catch(e){}}
 let S=load();
-const edit={co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
+const edit={ot:null,co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
 
 /* ================= HELPERS ================= */
-const emp=()=>S.employees.find(e=>e.id===S.sel.emp)||S.employees[0]||null;
-const groupOf=e=>(e&&(e.status==='SPES'||e.status==='GIP'))?'MONTHLY':'REGULAR';
+const INACTIVE=['RESIGNED','TRANSFERRED'];
+const isActive=e=>!!e&&!INACTIVE.includes(String(e.status||'').toUpperCase());
+const activeEmps=()=>S.employees.filter(isActive);
+const emp=()=>{const a=activeEmps();return a.find(e=>e.id===S.sel.emp)||a[0]||null;};
+/* service range: first day = earliest of Start as COS / EE / plantilla; last day = End date. Blank = no limit. */
+const empStart=e=>[e.joStart,e.eeStart,e.plantillaStart].filter(Boolean).sort()[0]||'';
+const empEnd=e=>e.endDate||'';
+const inService=(e,k)=>(!empStart(e)||k>=empStart(e))&&(!empEnd(e)||k<=empEnd(e));
+const visDays=(c,e)=>c.days.filter(d=>inService(e,iso(d)));
+const noService='<p style="padding:20px;font-family:Arial">This employee has no service days in the selected cut-off (not yet started, or already past the end date), so nothing is shown.</p>';
+const groupOf=e=>(e&&(e.status==='SPES'||e.status==='GIP'||e.status==='EE'))?'MONTHLY':'REGULAR';
 const midInit=e=>{const m=String(e.middle||'').trim();return m?m.charAt(0)+'.':'';};
 const empName=e=>(e.last+', '+e.first+(midInit(e)?' '+midInit(e):'')).toUpperCase();
 function cutObj(c){
@@ -528,6 +584,7 @@ function info(d,e){
   if(sp&&sp.kind==='WHOLE')return {t:'SUSPENDED'};
   const a=S.activities.find(x=>x.emp===e.id&&x.date===k);
   if(a&&a.activity==='LEAVE')return {t:'LEAVE',type:a.leaveType||'Leave'};
+  if(a&&a.activity==='OFFSET')return {t:'OFFSET'};
   return {t:'WORK',pmSusp:!!(sp&&sp.kind==='AFTERNOON'),act:a||null};
 }
 function arLabel(i){
@@ -537,13 +594,15 @@ function arLabel(i){
     case 'SUNDAY':return 'Sunday';
     case 'SUSPENDED':return 'SUSPENDED';
     case 'LEAVE':return i.type;
+    case 'OFFSET':return 'OFFSET';
     default:return (i.act&&i.act.remarks)?i.act.remarks.trim():'';
   }
 }
 const noCut='<p style="padding:20px;font-family:Arial">No cut-off is set up for this employee\'s payroll type in the selected year. Add one in Settings.</p>';
 
 /* ================= DTR (CSC Form 48) ================= */
-function dtrRow(n,d,e,t){
+function dtrRow(n,d,e,t,hid){
+  if(hid)return '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
   if(!d)return '<tr><td>'+n+'</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
   const i=info(d,e);
   if(i.t==='WORK'){
@@ -553,11 +612,14 @@ function dtrRow(n,d,e,t){
   return '<tr><td>'+n+'</td><td colspan="4" class="mg">'+i.t+'</td><td></td><td></td></tr>';
 }
 function dtrForm(seg,e){
-  const map={};(seg||[]).forEach(d=>map[d.getDate()]=d);
+  /* seg = all days of this month inside the cut-off; only days inside the employee's service range are filled and numbered */
+  const map={},hid={};
+  (seg||[]).forEach(d=>{if(inService(e,iso(d)))map[d.getDate()]=d;else hid[d.getDate()]=true;});
+  const vis=(seg||[]).filter(d=>inService(e,iso(d)));
   const t=timesOf(e);let rows='';
-  for(let n=1;n<=31;n++)rows+=dtrRow(n,map[n],e,t);
+  for(let n=1;n<=31;n++)rows+=dtrRow(n,map[n],e,t,!!hid[n]);
   let label='';
-  if(seg){const a=seg[0],b=seg[seg.length-1];label=MON3[a.getMonth()]+' '+pad(a.getDate())+' - '+pad(b.getDate())+', '+a.getFullYear();}
+  if(vis.length){const a=vis[0],b=vis[vis.length-1];label=MON3[a.getMonth()]+' '+pad(a.getDate())+' - '+pad(b.getDate())+', '+a.getFullYear();}
   return '<div class="dtr-form"><div class="f48">CIVIL SERVICE FORM NO. 48</div><h3>DAILY TIME RECORD</h3>'+
     '<div class="nm">'+esc(empName(e))+'</div><div class="lbl">NAME</div>'+
     '<div class="row"><span>For the month of</span><span class="ul">'+label+'</span></div>'+
@@ -572,10 +634,11 @@ function dtrForm(seg,e){
 function renderDTR(){
   const e=emp(),c=cut();
   if(!e||!c){$('dtrOut').innerHTML=noCut;return;}
+  if(!visDays(c,e).length){$('dtrOut').innerHTML=noService;return;}
   const segs=[];
   c.days.forEach(d=>{const l=segs[segs.length-1];if(l&&l[0].getMonth()===d.getMonth())l.push(d);else segs.push([d]);});
   let forms=segs.slice(0,2);
-  if(forms.length===1)forms.push(null);   /* one month only (e.g. SPES / GIP): second form left blank */
+  if(forms.length===1)forms.push(null);   /* one month only (e.g. SPES / GIP / EE): second form left blank */
   const O=S.office;
   $('dtrOut').innerHTML='<div class="dtr-forms">'+forms.map(s=>dtrForm(s,e)).join('')+'</div>'+
     '<div class="dtr-ver">Verified as to the prescribed hours<div class="vn">'+esc(O.verifier)+'</div><div class="vp">'+esc(O.verifierPos)+'</div></div>';
@@ -603,10 +666,10 @@ function fitDTR(){
 }
 
 /* ================= ACCOMPLISHMENT REPORT ================= */
-function arHead(c,title){
-  const O=S.office;
+function arHead(c,title,vd){
+  const O=S.office,a=vd&&vd.length?vd[0]:c.start,b=vd&&vd.length?vd[vd.length-1]:c.end;
   return '<div class="hd"><div class="o">'+esc(O.name)+'</div>'+(O.address?'<div>'+esc(O.address)+'</div>':'')+'<div class="t">'+title+'</div></div>'+
-    '<div class="per"><div>Attendance Period : '+long(c.start)+' - '+long(c.end)+'</div><div>Payroll Period : '+esc(c.payroll)+'</div></div>';
+    '<div class="per"><div>Attendance Period : '+long(a)+' - '+long(b)+'</div><div>Payroll Period : '+esc(c.payroll)+'</div></div>';
 }
 function arSigs(e){
   return '<div class="sigs"><div><div class="k">Submitted BY:</div><div class="n">'+esc(empName(e))+'</div><div>'+esc(e.position)+'</div></div>'+
@@ -615,31 +678,35 @@ function arSigs(e){
 function renderAR(){
   const e=emp(),c=cut();
   if(!e||!c){$('arOut').innerHTML=noCut;return;}
+  const vd=visDays(c,e);
+  if(!vd.length){$('arOut').innerHTML=noService;return;}
   let rows='';
-  if(groupOf(e)==='MONTHLY'){
+  if(e.status==='SPES'||e.status==='GIP'){
     /* SPES / GIP: one row per day */
-    rows=c.days.map(d=>'<tr><td>'+long(d)+'</td><td>'+(esc(arLabel(info(d,e)))||'&nbsp;')+'</td></tr>').join('');
+    rows=vd.map(d=>'<tr><td>'+long(d)+'</td><td>'+(esc(arLabel(info(d,e)))||'&nbsp;')+'</td></tr>').join('');
   }else{
     /* PLANTILLA / COS / EE: weekdays grouped, weekends one row each */
     const blocks=[];let cur=null;
-    c.days.forEach(d=>{
+    vd.forEach(d=>{
       const i=info(d,e),wk=d.getDay()===0||d.getDay()===6;
       if(wk){cur=null;blocks.push([[d,i]]);}
       else{if(!cur){cur=[];blocks.push(cur);}cur.push([d,i]);}
     });
     rows=blocks.map(b=>'<tr class="blk"><td colspan="2">'+b.map(x=>'<div class="dr"><div>'+long(x[0])+'</div><div class="t">'+(esc(arLabel(x[1]))||'&nbsp;')+'</div></div>').join('')+'</td></tr>').join('');
   }
-  $('arOut').innerHTML=arHead(c,'ACCOMPLISHMENT REPORT')+
+  $('arOut').innerHTML=arHead(c,'ACCOMPLISHMENT REPORT',vd)+
     '<table class="ar"><thead><tr><th style="width:42%">DATE</th><th>TASK ACCOMPLISHED</th></tr></thead><tbody>'+rows+'</tbody></table>'+arSigs(e);
 }
 function renderWFH(){
   const e=emp(),c=cut();
   if(!e||!c){$('wfhOut').innerHTML=noCut;return;}
-  const list=S.activities.filter(a=>a.emp===e.id&&a.activity==='WORK FROM HOME'&&inCut(c,a.date)).sort((a,b)=>a.date<b.date?-1:1);
+  const vd=visDays(c,e);
+  if(!vd.length){$('wfhOut').innerHTML=noService;return;}
+  const list=S.activities.filter(a=>a.emp===e.id&&a.activity==='WORK FROM HOME'&&inCut(c,a.date)&&inService(e,a.date)).sort((a,b)=>a.date<b.date?-1:1);
   let rows=list.map(a=>'<tr><td style="width:24%">'+long(parse(a.date))+'</td><td class="l">'+esc(a.remarks)+'</td></tr>').join('');
   if(!list.length)for(let n=0;n<10;n++)rows+='<tr><td style="height:9mm"></td><td></td></tr>';
   $('wfhOut').innerHTML='<div class="hd"><div class="o">'+esc(S.office.name)+'</div><div class="t">ACCOMPLISHMENT REPORT</div></div>'+
-    '<div class="per"><div>Attendance Period : '+long(c.start)+' - '+long(c.end)+'</div></div>'+
+    '<div class="per"><div>Attendance Period : '+long(vd[0])+' - '+long(vd[vd.length-1])+'</div></div>'+
     '<table class="ar"><thead><tr><th>DATE</th><th>TASK ACCOMPLISHED</th></tr></thead><tbody>'+rows+'</tbody></table>'+arSigs(e);
 }
 
@@ -659,14 +726,18 @@ function renderHome(){
   if(c){
     $('homeCut').innerHTML=kv([['Cut-off date',long(c.cut)],['Start date',long(c.start)],['End date',long(c.end)],['Payroll month',c.payroll],['Payroll type',GROUP_LABEL[g]]]);
   }else $('homeCut').innerHTML='<span>Cut-off</span><span>None set up for '+GROUP_LABEL[g]+'</span>';
-  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Payroll type',g],['AR format',g==='MONTHLY'?'Daily (one row per day)':'Weekly grouped']]);
-  const jo=e.joStart?parse(e.joStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
+  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Birthday',e.birthday?long(parse(e.birthday)):'—'],['Payroll type',g],['AR format',(e.status==='SPES'||e.status==='GIP')?'Daily (one row per day)':'Weekly grouped']]);
+  const jo=e.joStart?parse(e.joStart):null,ee=e.eeStart?parse(e.eeStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
+  const first=jo||ee||pl;
   const ten=[['Date today',long(today)]];
-  if(jo)ten.push(['Date hired (COS / JO / start)',long(jo)]);
+  if(first)ten.push(['Date hired (first start)',long(first)]);
+  if(jo)ten.push(['Date as COS',long(jo)]);
+  if(ee)ten.push(['Date as EE',long(ee)]);
   if(pl)ten.push(['Date as plantilla',long(pl)]);
-  if(jo)ten.push(['Tenure in QC',tenure(jo,today)]);
+  if(first)ten.push(['Tenure in QC',tenure(first,today)]);
+  if(jo&&(ee||pl))ten.push(['Tenure as COS',tenure(jo,ee||pl)]);
+  if(ee&&pl)ten.push(['Tenure as EE',tenure(ee,pl)]);
   if(pl)ten.push(['Tenure as plantilla',tenure(pl,today)]);
-  if(jo&&pl)ten.push(['Tenure as COS / JO',tenure(jo,pl)]);
   $('homeTen').innerHTML=kv(ten);
   const f=k=>long(parse(k));
   if(c){
@@ -724,6 +795,9 @@ function renderLeave(){
 function renderAct(){
   const e=emp();if(!e)return;
   $('actLeave').innerHTML='<option value="">—</option>'+S.leaveTypes.map(t=>'<option>'+esc(t.name)+'</option>').join('');
+  const gs=$('actGroup'),gcur=gs.value;
+  gs.innerHTML='<option value="">Selected employee only</option>'+STATUSES.map(st=>'<option value="'+st+'">All '+st+' ('+S.employees.filter(m=>m.status===st).length+')</option>').join('')+'<option value="ALL">All employees ('+activeEmps().length+')</option>';
+  gs.value=gcur;
   syncActForm();
   const g=groupOf(e);
   const rows=S.activities.filter(a=>a.emp===e.id).sort((a,b)=>a.date<b.date?-1:1);
@@ -740,10 +814,13 @@ function syncActForm(){
   const isLeave=$('actType').value==='LEAVE';
   $('actLeave').disabled=!isLeave;
   if(!isLeave)$('actLeave').value='';
+  const e0=emp(),isOff=$('actType').value==='OFFSET';
+  if(isOff&&e0){const b=offBalance(e0.id);$('actOffNote').textContent='Available offset: '+n2(b.earned-b.used)+' day(s) ('+n2(b.earned)+' earned from overtime, '+b.used+' used). Each OFFSET date uses 1 day.';}
+  else $('actOffNote').textContent='';
 }
 function resetAct(){
   edit.act=null;$('actDate').value='';$('actTo').value='';$('actType').value='REGULAR ACTIVITY';$('actLeave').value='';$('actRemarks').value='';
-  $('actTitle').textContent='Add activity';$('actSave').textContent='Add';$('actCancel').style.display='none';$('actTo').disabled=false;syncActForm();
+  $('actTitle').textContent='Add activity';$('actSave').textContent='Add';$('actCancel').style.display='none';$('actTo').disabled=false;$('actGroup').disabled=false;$('actGroup').value='';syncActForm();
 }
 function saveAct(){
   const e=emp(),d=$('actDate').value;if(!e||!d){alert('Choose a date.');return;}
@@ -755,25 +832,66 @@ function saveAct(){
     const rec={id:ex?ex.id:uid(),emp:e.id,date:date,activity:type,leaveType:type==='LEAVE'?lt:'',remarks:rm};
     if(ex)Object.assign(ex,rec);else S.activities.push(rec);
   };
-  const to=$('actTo').value;
+  const to=$('actTo').value,dates=[];
   if(!edit.act&&to&&to>d){
-    for(let x=parse(d);iso(x)<=to;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){if(x.getDay()!==0&&x.getDay()!==6)put(iso(x));}
-  }else put(d);
+    for(let x=parse(d);iso(x)<=to;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){if(x.getDay()!==0&&x.getDay()!==6)dates.push(iso(x));}
+  }else dates.push(d);
+  const grp=$('actGroup').value;
+  if(grp&&!edit.act){
+    if(type==='OFFSET'){alert('OFFSET must be filed per employee because everyone has their own offset balance.');return;}
+    const targets=S.employees.filter(m=>isActive(m)&&(grp==='ALL'||m.status===grp));
+    if(!targets.length){alert('There are no employees in that group.');return;}
+    const hol=new Set(S.holidays.map(h=>h.date)),sus=new Set(S.suspensions.filter(x=>x.kind==='WHOLE').map(x=>x.date));
+    const gd=dates.filter(k=>!hol.has(k)&&!sus.has(k)),dropped=dates.length-gd.length;
+    const recs=[];let skip=0;
+    targets.forEach(m=>gd.forEach(k=>{
+      if(S.activities.some(a=>a.emp===m.id&&a.date===k)){skip++;return;}
+      recs.push({id:uid(),emp:m.id,date:k,activity:type,leaveType:type==='LEAVE'?lt:'',remarks:rm});
+    }));
+    if(!recs.length){alert('Nothing to add: '+(dropped?'the chosen date(s) are holidays or suspended, or ':'')+'everyone in the group already has an entry on those dates.');return;}
+    const label=grp==='ALL'?'all employees':'all '+grp;
+    if(!confirm('Add '+type+' for '+label+' ('+targets.length+' employee'+(targets.length===1?'':'s')+') on '+gd.length+' date(s)?\n\n'+recs.length+' entr'+(recs.length===1?'y':'ies')+' will be created.'+(skip?'\n'+skip+' skipped because an entry already exists.':'')+(dropped?'\n'+dropped+' date(s) skipped (holiday / suspension).':'')))return;
+    S.activities=S.activities.concat(recs);
+    save();resetAct();renderAll();
+    return;
+  }
+  if(type==='OFFSET'){
+    const b=offBalance(e.id);
+    const repl=S.activities.filter(a=>a.emp===e.id&&a.activity==='OFFSET'&&(a.id===edit.act||dates.includes(a.date))).length;
+    const avail=b.earned-(b.used-repl);
+    if(dates.length>avail+1e-9){
+      alert('Not enough offset available. You are filing '+dates.length+' day(s) but only '+n2(Math.max(0,avail))+' day(s) are available ('+n2(b.earned)+' earned from overtime, '+(b.used-repl)+' already used). Add overtime in the Overtime Tracker first.');
+      return;
+    }
+  }
+  dates.forEach(put);
   save();resetAct();renderAll();
 }
 
 /* ================= EMPLOYEES ================= */
 const EM_FIELDS=[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor','sup'],['supPosition','Supervisor position','ro'],
   ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['mondayStatus','Monday status'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['email','Email address'],
-  ['joStart','Start in QC – JO / COS','date'],['plantillaStart','Start as plantilla','date']];
+  ['joStart','Start as COS','date'],['eeStart','Start as EE','date'],['plantillaStart','Start as plantilla','date'],['transferDate','Date of transfer (to this division)','date'],['endDate','End date','date'],['birthday','Birthday','date'],
+  ['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],
+  ['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],
+  ['education','Highest educational attainment','edu'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],
+  ['emergName','Emergency contact person'],['emergNumber','Emergency contact number']];
+const EDU_LEVELS=['ELEMENTARY','HIGH SCHOOL (OLD CURRICULUM)','JUNIOR HIGH SCHOOL','SENIOR HIGH SCHOOL','SENIOR HIGH SCHOOL UNDERGRADUATE','TECH VOC','COLLEGE GRADUATE','COLLEGE UNDERGRADUATE','GRADUATE SCHOOL'];
+const EM_HEAD={id:'Employee details',joStart:'Employment dates (leave a start date blank if it does not apply)',houseNo:'Address',sss:'Government ID numbers',education:'Education',emergName:'Emergency contact'};
+const emAddr=e=>[e.houseNo,e.street,e.barangay?'Brgy. '+e.barangay:'',e.district,e.city,e.province,e.zip].map(x=>String(x||'').trim()).filter(Boolean).join(', ');
 function emFormHtml(){
   return EM_FIELDS.map(f=>{
     const id='em_'+f[0];
-    if(f[2]==='select')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'">'+STATUSES.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
+    const hd=EM_HEAD[f[0]]?'<div style="flex-basis:100%;font-weight:bold;font-size:12px;color:var(--navy,#1f3a68);border-bottom:1px solid #cfd8e8;padding-top:6px">'+EM_HEAD[f[0]]+'</div>':'';
+    return hd+emField(f,id);
+  }).join('');
+}
+function emField(f,id){
+    if(f[2]==='edu')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"><option value="">— Select —</option>'+EDU_LEVELS.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
+    if(f[2]==='select')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'">'+EMP_STATUSES.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
     if(f[2]==='sup'||f[2]==='sector')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"></select></label>';
     if(f[2]==='ro')return '<label style="min-width:190px;flex:1">'+f[1]+' (auto)<input id="'+id+'" type="text" readonly style="background:#eef2f9"></label>';
     return '<label style="min-width:190px;flex:1">'+f[1]+'<input id="'+id+'" type="'+(f[2]||'text')+'"></label>';
-  }).join('');
 }
 function fillSel(id,vals,ph,val){
   const el=$(id),cur=val!==undefined?val:el.value,list=vals.slice();
@@ -786,9 +904,9 @@ function refreshEmSelects(supVal,secVal){
   fillSel('em_sector',S.sectors.map(x=>x.name),'— Select sector —',secVal);
 }
 function renderEmployees(){
-  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Monday status','Payroll type','Cellphone','QC ID','Sector','Email','Start in QC – JO','Start as plantilla'];
+  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Monday status','Payroll type','Cellphone','QC ID','Sector','Email','Start as COS','Start as EE','Start as plantilla','Date of transfer','End date','Birthday','Address','SSS','GSIS','TIN','PhilHealth','Pag-IBIG','Highest education','Course (college)','Course (graduate school)','Emergency contact','Emergency number'];
   $('emTbl').innerHTML='<thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'<th></th></tr></thead><tbody>'+S.employees.map(e=>
-    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+esc(e.mondayStatus)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td>'+
+    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+esc(e.mondayStatus)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.eeStart?long(parse(e.eeStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td><td style="white-space:nowrap">'+(e.transferDate?long(parse(e.transferDate)):'')+'</td><td style="white-space:nowrap">'+(e.endDate?long(parse(e.endDate)):'')+'</td><td style="white-space:nowrap">'+(e.birthday?long(parse(e.birthday)):'')+'</td><td>'+esc(emAddr(e))+'</td><td>'+esc(e.sss)+'</td><td>'+esc(e.gsis)+'</td><td>'+esc(e.tin)+'</td><td>'+esc(e.philhealth)+'</td><td>'+esc(e.pagibig)+'</td><td>'+esc(e.education)+'</td><td>'+esc(e.collegeCourse)+'</td><td>'+esc(e.gradCourse)+'</td><td>'+esc(e.emergName)+'</td><td>'+esc(e.emergNumber)+'</td>'+
     '<td style="white-space:nowrap"><button class="link" data-a="edit-em" data-id="'+esc(e.id)+'">Edit</button><button class="link del" data-a="del-em" data-id="'+esc(e.id)+'">Delete</button></td></tr>').join('')+'</tbody>';
   refreshEmSelects();
   const O=S.office;
@@ -803,10 +921,11 @@ function saveEm(){
   const r={};EM_FIELDS.forEach(f=>r[f[0]]=$('em_'+f[0]).value.trim());
   if(!r.id||!r.last||!r.first){alert('Employee ID, last name and first name are required.');return;}
   if(S.employees.some(e=>e.id===r.id&&e.id!==edit.em)){alert('That employee ID already exists.');return;}
+  if(r.endDate){const st=[r.joStart,r.eeStart,r.plantillaStart].filter(Boolean).sort()[0];if(st&&r.endDate<st){alert('End date cannot be earlier than the start date.');return;}}
   r.last=r.last.toUpperCase();r.first=r.first.toUpperCase();r.middle=r.middle.toUpperCase();
   if(edit.em){
     const old=S.employees.find(e=>e.id===edit.em);
-    if(old.id!==r.id){S.activities.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.trainings.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});if(S.sel.emp===old.id)S.sel.emp=r.id;}
+    if(old.id!==r.id){S.activities.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.trainings.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.overtime.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});if(S.sel.emp===old.id)S.sel.emp=r.id;}
     Object.assign(old,r);delete old.mi;
   }else{S.employees.push(r);}
   save();resetEm();renderAll();
@@ -898,6 +1017,56 @@ function saveSc(){
   else S.sectors.push({id:uid(),name:n});
   save();resetSc();renderAll();
 }
+const otOf=id=>S.overtime.filter(o=>o.emp===id);
+const otHours=list=>list.reduce((s,o)=>s+(+o.hours||0),0);
+const offUsed=(id,f)=>S.activities.filter(a=>a.emp===id&&a.activity==='OFFSET'&&(!f||f(a)));
+function offBalance(id){return {earned:otHours(otOf(id))/OT_PER_DAY,used:offUsed(id).length};}
+const cutLabel=c=>long(parse(c.cutoff))+'  ('+MON3[parse(c.start).getMonth()]+' '+parse(c.start).getDate()+' – '+MON3[parse(c.end).getMonth()]+' '+parse(c.end).getDate()+', '+parse(c.end).getFullYear()+')';
+function otPeriod(e){
+  const list=S.sel.year?cutsForYear(groupOf(e),S.sel.year):[];
+  if(!list.length)return null;
+  const c=S.sel.otcut?list.find(x=>x.id===S.sel.otcut):null;
+  if(c)return {start:c.start,end:c.end,label:'Cut-off '+long(parse(c.cutoff))};
+  return {start:list.map(x=>x.start).sort()[0],end:list.map(x=>x.end).sort().pop(),label:'Year '+S.sel.year+' (all cut-offs)'};
+}
+function renderOT(){
+  const e=emp();if(!e)return;
+  const per=otPeriod(e);
+  if(!per){
+    $('otPillTitle').textContent='Overtime summary';$('otPills').innerHTML='';
+    $('otNote').textContent='No cut-off is set up for this employee\'s payroll type in the selected year. Add one in Settings.';
+    $('otTbl').innerHTML='<tbody><tr><td class="empty">No data.</td></tr></tbody>';$('otUsedTbl').innerHTML='<tbody><tr><td class="empty">No data.</td></tr></tbody>';
+    return;
+  }
+  const inP=d=>d>=per.start&&d<=per.end,g=groupOf(e);
+  const rows=otOf(e.id).filter(o=>inP(o.date)).sort((a,b)=>a.date<b.date?-1:(a.date>b.date?1:0));
+  const hrs=otHours(rows),used=offUsed(e.id,a=>inP(a.date)).sort((a,b)=>a.date<b.date?-1:1);
+  const earnedTo=otHours(otOf(e.id).filter(o=>o.date<=per.end))/OT_PER_DAY,usedTo=offUsed(e.id,a=>a.date<=per.end).length;
+  const all=offBalance(e.id);
+  $('otPillTitle').textContent='Overtime summary – '+per.label;
+  $('otPills').innerHTML='<div class="pill"><b>'+fmtH(hrs)+'</b><span>Total overtime hours</span></div>'+
+    '<div class="pill"><b>'+n2(hrs/OT_PER_DAY)+'</b><span>Equivalent offset days</span></div>'+
+    '<div class="pill"><b>'+used.length+'</b><span>Offsets used</span></div>'+
+    '<div class="pill"><b>'+n2(earnedTo-usedTo)+'</b><span>Remaining offset (days)</span></div>'+
+    '<div class="pill"><b style="font-size:15px;padding-top:6px">'+esc(empName(e))+'</b><span>'+esc(per.label)+'</span></div>';
+  $('otNote').textContent='Remaining offset is the running balance up to the end of the selected period (all overtime earned minus all offsets used). Overall balance today across all dates: '+n2(all.earned-all.used)+' day(s).';
+  $('otListTitle').textContent='Overtime records – '+empName(e);
+  $('otTbl').innerHTML='<thead><tr><th>Date</th><th>Overtime hours</th><th>Offset equivalent (days)</th><th>Purpose / remarks</th><th>Cut-off</th><th></th></tr></thead><tbody>'+
+    (rows.length?rows.map(o=>{const c=findCutFor(o.date,g);return '<tr><td style="white-space:nowrap">'+long(parse(o.date))+'</td><td>'+fmtH(o.hours)+'</td><td>'+n2(o.hours/OT_PER_DAY)+'</td><td class="pre">'+esc(o.remarks)+'</td><td style="white-space:nowrap">'+(c?long(parse(c.cutoff)):'—')+'</td>'+rowBtns('ot',o.id)+'</tr>';}).join('')+
+      '<tr><td><strong>TOTAL</strong></td><td><strong>'+fmtH(hrs)+'</strong></td><td><strong>'+n2(hrs/OT_PER_DAY)+'</strong></td><td colspan="3"></td></tr>':
+      '<tr><td colspan="6" class="empty">No overtime recorded for this period.</td></tr>')+'</tbody>';
+  $('otUsedTbl').innerHTML='<thead><tr><th>Date</th><th>Remarks</th></tr></thead><tbody>'+
+    (used.length?used.map(a=>'<tr><td style="white-space:nowrap">'+long(parse(a.date))+'</td><td class="pre">'+esc(a.remarks)+'</td></tr>').join(''):'<tr><td colspan="2" class="empty">No offsets used in this period.</td></tr>')+'</tbody>';
+}
+function resetOt(){edit.ot=null;['otDate','otHrs','otRem'].forEach(i=>$(i).value='');$('otTitle').textContent='Add overtime';$('otSave').textContent='Add';$('otCancel').style.display='none';}
+function saveOt(){
+  const e=emp();if(!e)return;
+  const r={date:$('otDate').value,hours:parseFloat($('otHrs').value),remarks:$('otRem').value.trim()};
+  if(!r.date||isNaN(r.hours)){alert('Enter the date and the overtime hours.');return;}
+  if(r.hours<=0||r.hours>24){alert('Overtime hours must be more than 0 and not more than 24.');return;}
+  if(edit.ot)Object.assign(S.overtime.find(o=>o.id===edit.ot),r);else S.overtime.push(Object.assign({id:uid(),emp:e.id},r));
+  save();resetOt();renderAll();
+}
 function fillYearFilter(){
   const ys=Array.from(new Set(S.cutoffs.map(c=>c.end.slice(0,4)))).sort();
   const cur=$('coFYear').value;
@@ -921,9 +1090,10 @@ function resetLt(){edit.lt=null;$('ltName').value='';$('ltAmt').value='';$('ltAc
 
 /* ================= RENDER / NAV ================= */
 function updateEmpSelect(){
-  $('empSel').innerHTML=S.employees.map(e=>'<option value="'+esc(e.id)+'">'+esc(empName(e))+'</option>').join('');
-  if(!S.employees.find(e=>e.id===S.sel.emp)&&S.employees[0])S.sel.emp=S.employees[0].id;
-  $('empSel').value=S.sel.emp;
+  const act=activeEmps();
+  $('empSel').innerHTML=act.length?act.map(e=>'<option value="'+esc(e.id)+'">'+esc(empName(e))+'</option>').join(''):'<option value="">No active employee</option>';
+  if(!act.find(e=>e.id===S.sel.emp)&&act[0])S.sel.emp=act[0].id;
+  $('empSel').value=act.length?S.sel.emp:'';
 }
 function updateCutSelect(keepPayroll){
   const e=emp(),g=groupOf(e);
@@ -935,15 +1105,19 @@ function updateCutSelect(keepPayroll){
   $('cutoff').innerHTML=list.length?list.map(c=>'<option value="'+c.id+'">'+long(parse(c.cutoff))+'  ('+MON3[parse(c.start).getMonth()]+' '+parse(c.start).getDate()+' – '+MON3[parse(c.end).getMonth()]+' '+parse(c.end).getDate()+', '+parse(c.end).getFullYear()+')</option>').join(''):'<option value="">No cut-off set up for this year</option>';
   if(!list.find(c=>c.id===S.sel.cut))S.sel.cut=defaultCut(g,keepPayroll,S.sel.year);
   $('cutoff').value=S.sel.cut||'';
+  const ol=S.sel.year?cutsForYear(g,S.sel.year):[];
+  if(S.sel.otcut&&!ol.find(c=>c.id===S.sel.otcut))S.sel.otcut='';
+  $('otCut').innerHTML='<option value="">All cut-offs</option>'+ol.map(c=>'<option value="'+c.id+'">'+cutLabel(c)+'</option>').join('');
+  $('otCut').value=S.sel.otcut||'';
 }
 function renderAll(){
   updateEmpSelect();updateCutSelect();fillYearFilter();
   const e=emp();
   $('hdrWho').innerHTML=e?'<strong>'+esc(empName(e))+'</strong><br><span style="opacity:.85">'+esc(e.position)+'</span>':'';
-  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderSupervisors();renderSectors();
+  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderSupervisors();renderSectors();renderOT();
   save();
 }
-const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],supervisors:[],trainings:['emp','tyear'],settings:[]};
+const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],supervisors:[],trainings:['emp','tyear'],overtime:['year','otcut','emp'],settings:[]};
 let curView='home';
 function show(v){
   curView=v;
@@ -975,6 +1149,247 @@ function doPrint(){
   if(curView==='dtr')fitDTR();
   try{window.print();}catch(e){}
   setTimeout(()=>{if(!printed)fallbackPrint();},700);
+}
+
+
+/* ================= EXCEL DATABASE (File System Access API + SheetJS) ================= */
+const XL_TYPES=[{description:'Excel workbook',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}];
+const XL_SCHEMA=[
+  {sheet:'Employees',key:'employees',req:['id','last','first'],date:['joStart','eeStart','plantillaStart','birthday','transferDate','endDate'],time:['schedIn','schedOut'],up:['status','mondayStatus','education'],
+   cols:[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor'],['supPosition','Supervisor position'],['schedIn','Sched in'],['schedOut','Sched out'],['status','Status'],['mondayStatus','Monday status'],['cell','Cellphone'],['qcId','QC ID'],['sector','Sector'],['email','Email'],['joStart','Start as COS','Start in QC (JO/COS)'],['eeStart','Start as EE'],['plantillaStart','Start as plantilla'],['birthday','Birthday'],['transferDate','Date of transfer (to this division)'],['endDate','End date'],['houseNo','House number'],['street','Street'],['barangay','Barangay'],['district','District'],['city','City'],['province','Province'],['zip','ZIP code'],['sss','SSS number'],['gsis','GSIS number'],['tin','TIN'],['philhealth','PhilHealth number'],['pagibig','Pag-IBIG number'],['education','Highest educational attainment'],['collegeCourse','Course in college'],['gradCourse','Course in graduate school'],['emergName','Emergency contact person'],['emergNumber','Emergency contact number']]},
+  {sheet:'Supervisors',key:'supervisors',req:['name'],cols:[['id','ID'],['name','Supervisor name'],['position','Position']]},
+  {sheet:'Sectors',key:'sectors',req:['name'],cols:[['id','ID'],['name','Sector']]},
+  {sheet:'Cutoffs',key:'cutoffs',req:['type','cutoff','payroll','start','end'],date:['cutoff','start','end'],month:['payroll'],up:['type'],
+   cols:[['id','ID'],['type','Payroll type (REGULAR / MONTHLY)'],['cutoff','Cut-off date'],['payroll','Payroll month'],['start','Start date'],['end','End date']]},
+  {sheet:'Holidays',key:'holidays',req:['date','name'],date:['date'],cols:[['id','ID'],['date','Date'],['name','Holiday name']]},
+  {sheet:'Suspensions',key:'suspensions',req:['date'],date:['date'],up:['kind'],cols:[['id','ID'],['date','Date'],['kind','Kind (WHOLE / AFTERNOON)'],['remarks','Remarks']]},
+  {sheet:'LeaveTypes',key:'leaveTypes',req:['name'],num:['amount'],bool:['inTotal'],up:['accrual'],
+   cols:[['id','ID'],['name','Leave type'],['accrual','Allotment (MONTHLY / YEARLY)'],['amount','Amount (days)'],['inTotal','Count in SL + VL (YES/NO)']]},
+  {sheet:'Activities',key:'activities',req:['emp','date','activity'],date:['date'],up:['activity'],
+   cols:[['id','ID'],['emp','Employee ID'],['date','Date'],['activity','Activity'],['leaveType','Leave type'],['remarks','Remarks']]},
+  {sheet:'Trainings',key:'trainings',req:['emp','name','start'],date:['start','end'],num:['hours'],up:['type'],
+   cols:[['id','ID'],['emp','Employee ID'],['name','Training name'],['start','Start date'],['end','End date'],['hours','No. of hours'],['type','Type of training'],['by','Conducted / sponsored by']]},
+  {sheet:'Overtime',key:'overtime',req:['emp','date'],date:['date'],num:['hours'],
+   cols:[['id','ID'],['emp','Employee ID'],['date','Date'],['hours','Overtime hours'],['remarks','Purpose / remarks']]}
+];
+const XL_OFFICE=[['name','Office name'],['address','Address'],['verifier','DTR verified by'],['verifierPos','Verifier position'],['lunchOut','Lunch out (DTR)'],['lunchIn','Lunch in (DTR)']];
+const xl={h:null,name:'',state:'off',mod:0,last:null,busy:false,timer:null,err:'',lastJson:''};
+const xlOK=()=>typeof XLSX!=='undefined';
+const xlFS=()=>!!(window.showOpenFilePicker&&window.showSaveFilePicker);
+function xlData(){const o={office:S.office};XL_SCHEMA.forEach(sc=>o[sc.key]=S[sc.key]);return o;}
+const xlJson=()=>JSON.stringify(xlData());
+
+/* --- value conversion (Excel may turn typed text into dates / times) --- */
+function xlSerialISO(n){const d=new Date(Math.round((n-25569)*86400000));return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate());}
+function xlDate(v){
+  if(v===''||v==null)return '';
+  if(typeof v==='number')return xlSerialISO(v);
+  if(v instanceof Date)return iso(v);
+  const t=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(t))return t.slice(0,10);
+  const d=new Date(t);return isNaN(d)?t:iso(d);
+}
+function xlMonth(v){
+  if(v===''||v==null)return '';
+  if(typeof v==='number')return xlSerialISO(v).slice(0,7);
+  const t=String(v).trim();
+  if(/^\d{4}-\d{2}/.test(t))return t.slice(0,7);
+  const d=new Date(t);return isNaN(d)?t:iso(d).slice(0,7);
+}
+function xlTime(v,suf){
+  if(typeof v==='number'&&v>=0&&v<1){
+    const m=Math.round(v*1440),h=Math.floor(m/60),mi=m%60;
+    if(suf)return (h>12?h-12:h)+':'+pad(mi)+(h>=12?' PM':' AM');
+    return ((h%12)||12)+':'+pad(mi);
+  }
+  return String(v==null?'':v).trim();
+}
+
+/* --- state -> workbook --- */
+function xlBuild(){
+  const wb=XLSX.utils.book_new();
+  const rd=[['PESO DTR & AR Portal – database'],[''],['Each sheet is one table. Please do not change the ID columns or the header rows.'],['Dates: YYYY-MM-DD (e.g. 2026-05-26). Payroll month: YYYY-MM.'],['Close this file in Excel while the portal is open, otherwise the portal cannot save to it.'],[''],['Last saved by the portal',new Date().toLocaleString()]];
+  const w0=XLSX.utils.aoa_to_sheet(rd);w0['!cols']=[{wch:90},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,w0,'README');
+  XL_SCHEMA.forEach(sc=>{
+    const list=S[sc.key]||[];
+    const rows=[sc.cols.map(c=>c[1])].concat(list.map(r=>sc.cols.map(c=>{const v=r[c[0]];return typeof v==='boolean'?(v?'YES':'NO'):(v==null?'':v);})));
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=sc.cols.map((c,i)=>({wch:Math.min(60,rows.reduce((m,r)=>Math.max(m,String(r[i]).split('\n')[0].length+2),8))}));
+    XLSX.utils.book_append_sheet(wb,ws,sc.sheet);
+  });
+  const of=[['Setting','Value']].concat(XL_OFFICE.map(o=>[o[1],S.office[o[0]]==null?'':S.office[o[0]]]));
+  const wo=XLSX.utils.aoa_to_sheet(of);wo['!cols']=[{wch:24},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,wo,'Office');
+  return wb;
+}
+
+/* --- workbook -> partial state --- */
+function xlParse(wb){
+  const out={};if(!wb)return out;
+  XL_SCHEMA.forEach(sc=>{
+    const ws=wb.Sheets[sc.sheet];if(!ws)return;
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''});
+    if(!aoa.length){out[sc.key]=[];return;}
+    const hdr=aoa[0].map(h=>String(h).trim().toLowerCase()),idx={};
+    sc.cols.forEach(c=>{let i=hdr.indexOf(c[1].toLowerCase());if(i<0&&c[2])i=hdr.indexOf(c[2].toLowerCase());if(i<0)i=hdr.indexOf(c[0].toLowerCase());idx[c[0]]=i;});
+    const list=[];
+    aoa.slice(1).forEach(row=>{
+      if(row.every(v=>v===''||v==null))return;
+      const o={};
+      sc.cols.forEach(c=>{
+        const k=c[0],v=idx[k]>=0?row[idx[k]]:'';
+        if((sc.date||[]).includes(k))o[k]=xlDate(v);
+        else if((sc.month||[]).includes(k))o[k]=xlMonth(v);
+        else if((sc.time||[]).includes(k))o[k]=xlTime(v,k==='schedOut');
+        else if((sc.num||[]).includes(k)){const n=parseFloat(v);o[k]=isNaN(n)?0:n;}
+        else if((sc.bool||[]).includes(k))o[k]=/^(yes|true|y|1)$/i.test(String(v).trim());
+        else{o[k]=String(v==null?'':v).trim();if((sc.up||[]).includes(k))o[k]=o[k].toUpperCase();}
+      });
+      if(sc.req.some(k=>!o[k]))return;
+      if(sc.key!=='employees'&&!o.id)o.id=uid();
+      list.push(o);
+    });
+    out[sc.key]=list;
+  });
+  const wo=wb.Sheets['Office'];
+  if(wo){
+    const aoa=XLSX.utils.sheet_to_json(wo,{header:1,raw:true,defval:''}),of={};
+    aoa.slice(1).forEach(r=>{const m=XL_OFFICE.find(o=>o[1].toLowerCase()===String(r[0]).trim().toLowerCase());if(m)of[m[0]]=(m[0]==='lunchOut'||m[0]==='lunchIn')?xlTime(r[1],false):String(r[1]==null?'':r[1]).trim();});
+    if(Object.keys(of).length)out.office=of;
+  }
+  return out;
+}
+function xlApply(parts){
+  XL_SCHEMA.forEach(sc=>{if(parts[sc.key])S[sc.key]=parts[sc.key];});
+  if(parts.office)S.office=Object.assign({},makeDefaults().office,parts.office);
+  S.employees.forEach(e=>{delete e.mi;});
+  renderAll();
+}
+
+/* --- remembered file handle (IndexedDB) --- */
+function xlDb(){return new Promise((res,rej)=>{const r=indexedDB.open('peso-dtr-xl',1);r.onupgradeneeded=()=>r.result.createObjectStore('h');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function xlIdb(mode,val){
+  const db=await xlDb();
+  return new Promise((res,rej)=>{
+    const t=db.transaction('h',mode==='get'?'readonly':'readwrite'),st=t.objectStore('h');
+    const rq=mode==='get'?st.get('file'):(mode==='set'?st.put(val,'file'):st.delete('file'));
+    t.oncomplete=()=>res(rq.result);t.onerror=()=>rej(t.error);
+  });
+}
+
+/* --- reading / writing the file --- */
+async function xlRead(h){
+  const f=await h.getFile();xl.mod=f.lastModified;
+  if(!f.size)return null;
+  try{return XLSX.read(await f.arrayBuffer(),{type:'array'});}catch(e){return null;}
+}
+function xlSchedule(){
+  if(!xl.h||xl.state!=='on')return;
+  if(xlJson()===xl.lastJson)return;
+  clearTimeout(xl.timer);xl.timer=setTimeout(()=>xlWrite(false),700);
+}
+async function xlWrite(force){
+  if(!xl.h)return;
+  if(xl.busy){clearTimeout(xl.timer);xl.timer=setTimeout(()=>xlWrite(force),500);return;}
+  xl.busy=true;
+  try{
+    if(!force&&xl.mod){const f=await xl.h.getFile();if(f.lastModified>xl.mod+2000){xl.state='conflict';xl.busy=false;xlStatus();return;}}
+    const j=xlJson();
+    const buf=XLSX.write(xlBuild(),{bookType:'xlsx',type:'array'});
+    const w=await xl.h.createWritable();await w.write(buf);await w.close();
+    xl.lastJson=j;xl.last=new Date();xl.mod=(await xl.h.getFile()).lastModified;xl.err='';xl.state='on';
+    if(xlJson()!==xl.lastJson)xlSchedule();
+  }catch(e){
+    xl.state='error';xl.err=(e&&e.message)||String(e);
+    clearTimeout(xl.timer);xl.timer=setTimeout(()=>xlWrite(false),5000);
+  }
+  xl.busy=false;xlStatus();
+}
+async function xlAttach(h,mode,quiet){
+  const prev={h:xl.h,name:xl.name};
+  xl.h=h;xl.name=h.name;
+  if(mode==='create'){await xlWrite(true);if(xl.state!=='on'){xl.h=prev.h;xl.name=prev.name;throw new Error(xl.err||'Could not write the file');}}
+  else{
+    const parts=xlParse(await xlRead(h));
+    if(!parts.employees||!parts.employees.length){
+      if(quiet){xl.state='needs';xlStatus();return false;}
+      if(confirm('"'+h.name+'" has no portal data yet. Fill it with the data currently in the portal?')){await xlWrite(true);if(xl.state!=='on'){xl.h=prev.h;xl.name=prev.name;throw new Error(xl.err||'Could not write the file');}}
+      else{xl.h=prev.h;xl.name=prev.name;xlStatus();return false;}
+    }else{xlApply(parts);xl.state='on';}
+  }
+  xl.state='on';xl.lastJson=xlJson();xl.last=xl.last||new Date();
+  try{await xlIdb('set',h);}catch(e){}
+  xlStatus();return true;
+}
+async function xlOpen(){
+  try{
+    const r=await window.showOpenFilePicker({types:XL_TYPES,multiple:false});const h=r[0];
+    if(await h.requestPermission({mode:'readwrite'})!=='granted'){alert('Write permission is needed so the portal can save into the file.');return;}
+    if(!confirm('Load data from "'+h.name+'"? Data currently in the portal will be replaced by what is in the file.'))return;
+    await xlAttach(h,'open');
+  }catch(e){if(!e||e.name!=='AbortError')alert('Could not open the file: '+((e&&e.message)||e));}
+}
+async function xlCreate(){
+  try{
+    const h=await window.showSaveFilePicker({suggestedName:'PESO-DTR-Database.xlsx',types:XL_TYPES});
+    await xlAttach(h,'create');
+  }catch(e){if(!e||e.name!=='AbortError')alert('Could not create the file: '+((e&&e.message)||e));}
+}
+async function xlReconnect(){
+  if(!xl.h)return;
+  try{
+    if(await xl.h.requestPermission({mode:'readwrite'})!=='granted')return;
+    await xlAttach(xl.h,'reconnect');
+  }catch(e){alert('Could not reconnect: '+((e&&e.message)||e));}
+}
+async function xlDisconnect(){
+  if(!confirm('Disconnect from the Excel file? The portal will keep working from this browser only.'))return;
+  clearTimeout(xl.timer);xl.h=null;xl.name='';xl.state='off';try{await xlIdb('del');}catch(e){}
+  xlStatus();
+}
+function xlExport(){if(!xlOK()){alert('The Excel library did not load (internet is needed the first time).');return;}XLSX.writeFile(xlBuild(),'PESO-DTR-Database.xlsx');}
+function xlImportFile(ev){
+  const f=ev.target.files[0];ev.target.value='';if(!f)return;
+  if(!xlOK()){alert('The Excel library did not load (internet is needed the first time).');return;}
+  f.arrayBuffer().then(buf=>{
+    const parts=xlParse(XLSX.read(buf,{type:'array'}));
+    if(!parts.employees||!parts.employees.length){alert('No employee data found. Use a file saved by this portal (it needs an "Employees" sheet).');return;}
+    if(confirm('Replace the data in the portal with the contents of "'+f.name+'"?'))xlApply(parts);
+  }).catch(()=>alert('Could not read that file.'));
+}
+function xlStatus(){
+  const st=xl.state,t=xl.last?xl.last.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
+  let chip,txt,ban='';
+  if(!xlOK()){chip='<span>Excel library not loaded</span>';txt='The Excel library could not be loaded (internet is needed the first time). Saving is limited to this browser.';}
+  else if(st==='on'){chip='<span>Excel: '+esc(xl.name)+(t?' • saved '+t:'')+'</span>';txt='Connected to "'+xl.name+'"'+(t?' – last saved '+t:'')+'. Changes are saved to this file automatically.';}
+  else if(st==='needs'){chip='<span>Excel: '+esc(xl.name)+' – needs permission</span><button class="btn" data-x="reconnect" style="padding:4px 10px;font-size:12px">Reconnect</button>';txt='"'+xl.name+'" is remembered but the browser needs your permission again. Click Reconnect.';}
+  else if(st==='conflict'){chip='<span>Excel file changed outside the portal</span>';txt='The Excel file was changed outside the portal.';ban='The Excel file <strong>'+esc(xl.name)+'</strong> was changed outside the portal, so auto-save is paused. <button class="btn alt" data-x="reload">Reload from Excel</button> <button class="btn" data-x="over">Keep portal data and overwrite Excel</button>';}
+  else if(st==='error'){chip='<span>Excel: save failed – retrying</span>';txt='Could not save to the file: '+xl.err;ban='Could not save to <strong>'+esc(xl.name)+'</strong> ('+esc(xl.err)+'). If the file is open in Excel, close it. The portal retries every few seconds.';}
+  else{chip='<span>Data: this browser only</span><button class="btn" data-x="settings" style="padding:4px 10px;font-size:12px">Connect Excel</button>';txt=xlFS()?'Not connected. Data is stored in this browser only. Open an existing Excel file or create a new one to use it as the database.':'This browser cannot link a file directly (use Chrome or Edge). You can still download a copy or import an .xlsx file below.';}
+  $('xlChip').innerHTML=chip;$('xlStat').textContent=txt;
+  const b=$('xlBanner');b.innerHTML=ban;b.style.display=ban?'block':'none';
+  $('xlReconnect').style.display=st==='needs'?'':'none';
+  $('xlDisc').style.display=xl.h?'':'none';
+  const ok=xlOK()&&xlFS();$('xlOpen').disabled=!ok;$('xlCreate').disabled=!ok;
+}
+async function xlInit(){
+  xlStatus();
+  if(!xlOK()||!xlFS())return;
+  let h=null;try{h=await xlIdb('get');}catch(e){}
+  if(!h)return;
+  xl.h=h;xl.name=h.name;
+  let perm='prompt';try{perm=await h.queryPermission({mode:'readwrite'});}catch(e){}
+  if(perm==='granted'){try{await xlAttach(h,'reconnect',true);}catch(e){xl.state='needs';xlStatus();}}
+  else{xl.state='needs';xlStatus();}
+}
+function xlClick(ev){
+  const b=ev.target.closest('[data-x]');if(!b)return;
+  const x=b.dataset.x;
+  if(x==='reconnect')xlReconnect();
+  else if(x==='settings')show('settings');
+  else if(x==='reload'){if(confirm('Discard unsaved portal changes and reload from the Excel file?'))xlAttach(xl.h,'reconnect').catch(e=>alert(e.message));}
+  else if(x==='over')xlWrite(true);
 }
 
 /* ================= INIT & EVENTS ================= */
@@ -1075,6 +1490,10 @@ function doPrint(){
   $('ltCancel').onclick=resetLt;
   $('lvYear').onchange=renderLeave;
 
+  /* overtime */
+  $('otCut').onchange=()=>{S.sel.otcut=$('otCut').value;renderAll();};
+  $('otSave').onclick=saveOt;$('otCancel').onclick=resetOt;
+
   /* trainings */
   $('trnYear').onchange=()=>{S.sel.tyear=$('trnYear').value;renderAll();};
   $('trSave').onclick=saveTr;$('trCancel').onclick=resetTr;
@@ -1091,7 +1510,13 @@ function doPrint(){
     const f=e.target.files[0];if(!f)return;
     f.text().then(t=>{try{const o=JSON.parse(t);localStorage.setItem(KEY,JSON.stringify(o));S=load();renderAll();}catch(err){alert('Invalid backup file');}});
   };
-  $('reset').onclick=()=>{if(confirm('Reset all data to the defaults from the workbook?')){try{localStorage.removeItem(KEY);}catch(e){}S=load();renderAll();}};
+  $('reset').onclick=()=>{if(confirm('Reset all data to the defaults from the workbook?'+(xl.state==='on'?' This will also overwrite the connected Excel file.':''))){try{localStorage.removeItem(KEY);}catch(e){}S=load();renderAll();}};
+
+  /* excel database */
+  $('xlOpen').onclick=xlOpen;$('xlCreate').onclick=xlCreate;$('xlReconnect').onclick=xlReconnect;$('xlDisc').onclick=xlDisconnect;
+  $('xlExport').onclick=xlExport;$('xlImport').onchange=xlImportFile;
+  $('xlChip').onclick=xlClick;$('xlBanner').onclick=xlClick;
+  xlInit();
 
   /* row buttons (edit / delete) */
   document.addEventListener('click',ev=>{
@@ -1099,7 +1524,7 @@ function doPrint(){
     const a=b.dataset.a,id=b.dataset.id,tl=el=>el.scrollIntoView({behavior:'smooth',block:'center'});
     if(a==='edit-act'){
       const x=S.activities.find(y=>y.id===id);if(!x)return;
-      edit.act=id;$('actDate').value=x.date;$('actTo').value='';$('actTo').disabled=true;$('actType').value=x.activity;syncActForm();$('actLeave').value=x.leaveType;$('actRemarks').value=x.remarks;
+      edit.act=id;$('actDate').value=x.date;$('actTo').value='';$('actTo').disabled=true;$('actGroup').value='';$('actGroup').disabled=true;$('actType').value=x.activity;syncActForm();$('actLeave').value=x.leaveType;$('actRemarks').value=x.remarks;
       $('actTitle').textContent='Edit activity';$('actSave').textContent='Save changes';$('actCancel').style.display='';tl($('actTitle'));
     }else if(a==='del-act'){
       if(confirm('Delete this activity?')){S.activities=S.activities.filter(y=>y.id!==id);if(edit.act===id)resetAct();renderAll();}
@@ -1109,7 +1534,7 @@ function doPrint(){
       $('emTitle').textContent='Edit employee';$('emSave').textContent='Save changes';$('emCancel').style.display='';tl($('emTitle'));
     }else if(a==='del-em'){
       if(S.employees.length<2){alert('At least one employee is required.');return;}
-      if(confirm('Delete this employee and all of their activities?')){S.employees=S.employees.filter(y=>y.id!==id);S.activities=S.activities.filter(y=>y.emp!==id);S.trainings=S.trainings.filter(y=>y.emp!==id);if(edit.em===id)resetEm();renderAll();}
+      if(confirm('Delete this employee and all of their activities?')){S.employees=S.employees.filter(y=>y.id!==id);S.activities=S.activities.filter(y=>y.emp!==id);S.trainings=S.trainings.filter(y=>y.emp!==id);S.overtime=S.overtime.filter(y=>y.emp!==id);if(edit.em===id)resetEm();renderAll();}
     }else if(a==='edit-co'){
       const x=S.cutoffs.find(y=>y.id===id);if(!x)return;
       edit.co=id;$('coType').value=x.type;$('coCut').value=x.cutoff;$('coPay').value=x.payroll;$('coStart').value=x.start;$('coEnd').value=x.end;
@@ -1133,6 +1558,15 @@ function doPrint(){
       const x=S.leaveTypes.find(y=>y.id===id);if(!x)return;
       const n=S.activities.filter(y=>y.leaveType===x.name).length;
       if(confirm('Delete leave type "'+x.name+'"?'+(n?' '+n+' filed leave(s) use it and will no longer count in Leave Usage.':''))){S.leaveTypes=S.leaveTypes.filter(y=>y.id!==id);if(edit.lt===id)resetLt();renderAll();}
+    }else if(a==='edit-ot'){
+      const x=S.overtime.find(y=>y.id===id);if(!x)return;
+      edit.ot=id;$('otDate').value=x.date;$('otHrs').value=x.hours;$('otRem').value=x.remarks||'';
+      $('otTitle').textContent='Edit overtime';$('otSave').textContent='Save changes';$('otCancel').style.display='';tl($('otTitle'));
+    }else if(a==='del-ot'){
+      const x=S.overtime.find(y=>y.id===id);if(!x)return;
+      const b=offBalance(x.emp),after=b.earned-(+x.hours||0)/OT_PER_DAY;
+      const warn=after<b.used-1e-9?' Offsets already used ('+b.used+' day(s)) will then exceed the overtime earned ('+n2(after)+' day(s)).':'';
+      if(confirm('Delete this overtime record?'+warn)){S.overtime=S.overtime.filter(y=>y.id!==id);if(edit.ot===id)resetOt();renderAll();}
     }else if(a==='edit-tr'){
       const x=S.trainings.find(y=>y.id===id);if(!x)return;
       edit.tr=id;$('trName').value=x.name;$('trStart').value=x.start;$('trEnd').value=x.end;$('trHrs').value=x.hours;$('trType').value=x.type;$('trBy').value=x.by;
