@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PESO DTR &amp; AR Portal</title>
+<style id="mainCss">
+:root{--ink:#14213d;--muted:#5b6b88;--line:#d5deee;--brand:#0b3d91;--navy:#08275e;--blue2:#1d57b8;--gold:#d4a017;--gold-l:#f6d365;--gold-bg:#fff6d6;--blue-bg:#eaf1fc;--bg:#f2f5fb;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.topfix{position:sticky;top:0;z-index:100;box-shadow:0 3px 8px rgba(8,39,94,.28)}
+header.top{background:linear-gradient(100deg,var(--navy),var(--brand));border-bottom:4px solid var(--gold);color:#fff;padding:10px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header.top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px}
+header.top small{color:var(--gold-l);opacity:1;display:block;font-weight:400;font-size:12px}
+nav.tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:10px 20px;background:#fff;border-bottom:2px solid var(--brand)}
+nav.tabs button{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:#fff;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--brand)}
+nav.tabs button:hover{background:var(--gold-bg);border-color:var(--gold)}
+nav.tabs button.on{background:var(--brand);border-color:var(--brand);color:var(--gold-l);box-shadow:inset 0 -3px 0 var(--gold)}
+.toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:12px 20px;background:var(--blue-bg);border-bottom:1px solid var(--line);margin-bottom:14px}
+.toolbar label{display:flex;flex-direction:column;font-size:11px;font-weight:700;color:var(--brand);gap:3px;text-transform:uppercase;letter-spacing:.4px}
+.toolbar label.chk{flex-direction:row;align-items:center;gap:6px;padding-bottom:7px;text-transform:none;font-size:13px;color:var(--ink)}
+select,input,textarea{font:inherit;font-size:13px;padding:6px 8px;border:1px solid #a9bbdd;border-radius:6px;background:#fff;color:var(--ink)}
+input[type=checkbox]{padding:0}
+.btn{background:var(--brand);color:#fff;border:0;border-bottom:3px solid var(--gold);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+.btn:hover{background:var(--navy)}
+.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand);border-bottom:3px solid var(--gold)}
+button.link{background:none;border:0;color:var(--blue2);font-weight:600;cursor:pointer;font-size:12px;padding:2px 4px}
+button.link.del{color:#b42318}
+main{padding:0 20px 40px}
+.view{display:none}.view.active{display:block}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.stack{display:grid;gap:14px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 3px rgba(8,39,94,.08)}
+.stack .card{margin-bottom:0}
+.card h2{margin:-14px -16px 12px;padding:9px 16px;font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:#fff;background:linear-gradient(100deg,var(--navy),var(--brand));border-bottom:3px solid var(--gold);border-left:6px solid var(--gold)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:5px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--brand);font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl{border:1px solid var(--brand)}
+.tbl th,.tbl td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{background:var(--brand);color:#fff;font-weight:700;font-size:12px;white-space:nowrap;border-bottom:3px solid var(--gold);border-right:1px solid rgba(255,255,255,.18)}
+.tbl thead tr+tr th{background:var(--blue2);color:var(--gold-l);border-bottom:2px solid var(--gold)}
+.tbl tbody tr:nth-child(even) td{background:var(--blue-bg)}
+.tbl tbody tr:hover td{background:var(--gold-bg)}
+.tbl tbody tr.me td{background:var(--gold-bg);border-bottom:1px solid var(--gold);font-weight:600}
+.tbl td.pre{white-space:pre-wrap;min-width:220px}
+.empty{color:var(--muted);font-size:13px}
+.note{font-size:12px;color:var(--muted);margin:8px 0}
+.scroll{overflow-x:auto;padding-bottom:8px}
+.scroll.tall{max-height:420px;overflow-y:auto}
+.paper{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.18);margin:6px auto}
+.form-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:10px}
+.form-row label{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:3px}
+.form-row label.chk{flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink);padding-bottom:7px}
+.banner{margin:10px 20px;padding:10px 14px;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;font-size:13px;display:none}
+.pills{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.pill{background:var(--blue-bg);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:10px;padding:10px 16px}
+.pill b{display:block;font-size:22px;color:var(--brand)}
+.pill span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+
+/* ---------- DTR (CSC Form 48) ---------- */
+.dtr-page{width:194mm;font-family:Arial,Helvetica,sans-serif;color:#000;page:dtr;padding:0}
+.dtr-forms{display:flex;gap:6mm}
+.dtr-ver{margin-top:7mm;text-align:center;font-size:8pt;break-inside:avoid}
+.dtr-ver .vp{white-space:nowrap;overflow:visible}
+.dtr-ver .vn{font-weight:bold;margin-top:9mm;font-size:8.5pt}
+.dtr-form{flex:1;min-width:0;font-size:7pt}
+.dtr-form .f48{font-size:6.5pt}
+.dtr-form h3{margin:1px 0 0;text-align:center;font-size:10pt}
+.dtr-form .nm{text-align:center;font-weight:bold;border-bottom:1px solid #000;margin:5px 12px 0;padding-bottom:1px;font-size:8.5pt}
+.dtr-form .lbl{text-align:center;font-size:6.5pt;margin-bottom:3px}
+.dtr-form .row{display:flex;justify-content:space-between;gap:4px;margin:1px 0;font-size:6.5pt}
+.dtr-form .ul{border-bottom:1px solid #000;flex:1;text-align:center;font-weight:bold;padding:0 4px}
+.dtr-form .blank{min-width:40px;border-bottom:1px solid #000}
+table.dtr{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:3px}
+table.dtr th,table.dtr td{border:1px solid #000;text-align:center;height:4.5mm;padding:0 1px;line-height:1;font-size:7pt;overflow:hidden;white-space:nowrap}
+table.dtr th{font-weight:bold}
+table.dtr th:first-child,table.dtr td:first-child{width:7%}
+table.dtr td.mg{font-weight:bold;letter-spacing:.3px}
+.dtr-form .cert{margin-top:4px;font-size:7pt;line-height:1.2;text-align:justify;text-indent:8mm}
+.dtr-form .sig{margin:8mm 10mm 0;border-top:1px solid #000;text-align:center;font-size:7pt;padding-top:1px}
+
+/* ---------- Accomplishment Report ---------- */
+.ar-page{width:210mm;max-width:100%;padding:10mm;font-family:Arial,Helvetica,sans-serif;color:#000;font-size:11pt;page:ar}
+.ar-page .hd{text-align:center;line-height:1.35}
+.ar-page .hd .o{font-weight:bold;font-size:13pt}
+.ar-page .hd .t{font-weight:bold;font-size:13pt;margin-top:10px}
+.ar-page .per{margin:12px 0 8px;line-height:1.5}
+.ar-page table.ar{width:100%;border-collapse:collapse}
+.ar-page table.ar th,.ar-page table.ar td{border:1px solid #000;padding:2px 6px;vertical-align:top}
+.ar-page table.ar th{background:#f2f2f2;text-align:center}
+.ar-page table.ar td{text-align:center}
+.ar-page table.ar td.l{text-align:left;white-space:pre-wrap}
+.ar-page table.ar td div{white-space:pre-wrap}
+.ar-page table.ar tr{break-inside:avoid}
+.ar-page table.ar tr.blk{break-inside:auto}
+.ar-page table.ar td{white-space:pre-wrap}
+.ar-page table.ar tr.blk>td{padding:0}
+.ar-page .dr{display:grid;grid-template-columns:42% 1fr;break-inside:avoid}
+.ar-page .dr>div{padding:2px 6px;min-height:1.35em}
+.ar-page .dr>.t{border-left:1px solid #000;white-space:pre-wrap}
+.ar-page .sigs{display:flex;justify-content:space-between;margin-top:22px;break-inside:avoid}
+.ar-page .sigs>div{width:46%}
+.ar-page .sigs .k{margin-bottom:34px}
+.ar-page .sigs .n{font-weight:bold;text-transform:uppercase}
+
+/* screen-only accents on the paper previews (printing stays plain black & white) */
+@media screen{
+  .paper{border-top:5px solid var(--gold);outline:2px solid var(--brand)}
+  .ar-page table.ar th{background:var(--brand);color:#fff;border-color:var(--navy)}
+  .ar-page table.ar{border:2px solid var(--brand)}
+  .ar-page table.ar tbody tr:nth-child(even)>td{background:var(--blue-bg)}
+  .ar-page .hd .o,.ar-page .hd .t{color:var(--brand)}
+  .ar-page .hd .t{border-bottom:3px solid var(--gold);display:inline-block;padding-bottom:2px}
+  table.dtr th{background:var(--brand);color:#fff}
+  table.dtr td.mg{background:var(--gold-bg)}
+  .dtr-form h3{color:var(--brand)}
+}
+@media print{
+  body{background:#fff}
+  .no-print{display:none!important}
+  .view{display:none!important}
+  .view.active{display:block!important}
+  main{padding:0}
+  .paper{box-shadow:none;margin:0}
+  .ar-page{padding:0;width:auto}
+  .scroll{overflow:visible}
+}
+</style>
+<style id="pageStyle"></style>
+</head>
+<body>
+<div class="topfix no-print">
+<header class="top">
+  <h1>PESO DTR &amp; AR Portal<small>Daily Time Record • Accomplishment Reports • Trainings • Leave Usage</small></h1>
+  <div id="hdrWho" style="font-size:13px;text-align:right"></div>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-v="home">Home</button>
+  <button data-v="dtr">Daily Time Record</button>
+  <button data-v="ar">Accomplishment Report</button>
+  <button data-v="wfh">WFH Report</button>
+  <button data-v="trainings">Trainings</button>
+  <button data-v="leave">Leave Usage</button>
+  <button data-v="activities">Individual Activities</button>
+  <button data-v="employees">Employees</button>
+  <button data-v="supervisors">Supervisors</button>
+  <button data-v="settings">Settings</button>
+</nav>
+</div>
+
+<div class="toolbar no-print" id="toolbar">
+  <label data-t="year">Year<select id="selYear" style="min-width:90px"></select></label>
+  <label data-t="cut">Cut-off<select id="cutoff"></select></label>
+  <label data-t="tyear">Year<select id="trnYear" style="min-width:90px"></select></label>
+  <label data-t="emp">Employee<select id="empSel"></select></label>
+  <label data-t="paper">Paper<select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="Legal">Legal / Long</option></select></label>
+  <label data-t="fit" class="chk"><input type="checkbox" id="fit" checked> Fit to page</label>
+  <label data-t="zoom">DTR print scale (%)<input id="zoom" type="number" min="50" max="120" value="100" style="width:90px"></label>
+  <button class="btn" id="printBtn" data-t="print">Print</button>
+</div>
+<div class="banner no-print" id="printNote"></div>
+
+<main>
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="two">
+      <div class="stack">
+        <div class="card"><h2>Cut-off</h2><div class="kv" id="homeCut"></div></div>
+        <div class="card"><h2>Employee</h2><div class="kv" id="homeEmp"></div></div>
+        <div class="card"><h2 id="homeTrnT">Training hours</h2><div class="pills" id="homeTrn" style="margin-bottom:0"></div></div>
+        <div class="card"><h2>Tenure</h2><div class="kv" id="homeTen"></div></div>
+      </div>
+      <div class="stack">
+        <div class="card"><h2>Work suspensions (this cut-off)</h2><div id="homeSus"></div></div>
+        <div class="card"><h2>Holidays (this cut-off)</h2><div id="homeHol"></div></div>
+        <div class="card"><h2>Filed leaves (this cut-off)</h2><div id="homeLv"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DTR -->
+  <section class="view" id="v-dtr">
+    <div class="scroll"><div class="paper dtr-page" id="dtrPage"><div class="dtr-wrap" id="dtrOut"></div></div></div>
+  </section>
+
+  <!-- AR / WFH -->
+  <section class="view" id="v-ar"><div class="scroll"><div class="paper ar-page" id="arOut"></div></div></section>
+  <section class="view" id="v-wfh"><div class="scroll"><div class="paper ar-page" id="wfhOut"></div></div></section>
+
+  <!-- TRAININGS -->
+  <section class="view" id="v-trainings">
+    <div class="card"><h2 id="trPillTitle">Training hours</h2><div class="pills" id="trPills"></div></div>
+    <div class="card">
+      <h2 id="trTitle">Add training</h2>
+      <div class="form-row">
+        <label style="flex:2;min-width:260px">Training name<input id="trName"></label>
+        <label>Start date<input type="date" id="trStart"></label>
+        <label>End date<input type="date" id="trEnd"></label>
+        <label>No. of hours<input type="number" min="0" step="0.5" id="trHrs" style="width:100px"></label>
+        <label>Type of training<select id="trType"><option>TECHNICAL</option><option>SUPERVISORIAL</option><option>MANAGERIAL</option></select></label>
+      </div>
+      <div class="form-row"><label style="flex:1;min-width:300px">Conducted / sponsored by (write in full)<input id="trBy"></label></div>
+      <p><button class="btn" id="trSave">Add</button> <button class="btn alt" id="trCancel" style="display:none">Cancel</button></p>
+    </div>
+    <div class="card">
+      <h2 id="trListTitle">Trainings</h2>
+      <div class="scroll"><table class="tbl" id="trTbl"></table></div>
+    </div>
+  </section>
+
+  <!-- LEAVE USAGE -->
+  <section class="view" id="v-leave">
+    <div class="card">
+      <h2>Leave Usage Report</h2>
+      <div class="form-row"><label>Year<select id="lvYear"></select></label></div>
+      <div class="pills" id="lvPills"></div>
+      <div class="scroll"><table class="tbl" id="lvMine"></table></div>
+      <p class="note" id="lvNote"></p>
+    </div>
+    <div class="card">
+      <h2>All plantilla personnel</h2>
+      <div class="scroll"><table class="tbl" id="lvAll"></table></div>
+    </div>
+  </section>
+
+  <!-- INDIVIDUAL ACTIVITIES -->
+  <section class="view" id="v-activities">
+    <div class="card">
+      <h2 id="actTitle">Add activity</h2>
+      <div class="form-row">
+        <label>Date<input type="date" id="actDate"></label>
+        <label>To date (optional, weekdays only)<input type="date" id="actTo"></label>
+        <label>Activity<select id="actType"></select></label>
+        <label>Leave type<select id="actLeave"></select></label>
+      </div>
+      <label style="font-size:11px;color:var(--muted)">Remarks / tasks accomplished<textarea id="actRemarks" rows="5" style="width:100%" placeholder="For WORK FROM HOME: list the tasks accomplished"></textarea></label>
+      <p><button class="btn" id="actSave">Add</button> <button class="btn alt" id="actCancel" style="display:none">Cancel</button></p>
+    </div>
+    <div class="card">
+      <h2 id="actListTitle">Activities</h2>
+      <div class="scroll tall"><table class="tbl" id="actTbl"></table></div>
+    </div>
+  </section>
+
+  <!-- EMPLOYEES -->
+  <section class="view" id="v-employees">
+    <div class="card">
+      <h2>Employees</h2>
+      <div class="scroll"><table class="tbl" id="emTbl"></table></div>
+    </div>
+    <div class="card">
+      <h2 id="emTitle">Add employee</h2>
+      <div class="form-row" id="emForm"></div>
+      <p><button class="btn" id="emSave">Add</button> <button class="btn alt" id="emCancel" style="display:none">Cancel</button></p>
+      <p class="note">Name is built automatically from Last name, First name and the middle initial. Payroll type follows the status: PLANTILLA / COS / EE are REGULAR, SPES / GIP are MONTHLY. Supervisor and Sector are dropdowns (managed in the Supervisors page and Settings); the supervisor's position fills in automatically. Names are shown as LAST NAME, FIRST NAME M.I. (the initial comes from the middle name).</p>
+    </div>
+    <div class="card">
+      <h2>Office &amp; DTR details</h2>
+      <div class="form-row" id="ofForm"></div>
+    </div>
+  </section>
+
+  <!-- SUPERVISORS -->
+  <section class="view" id="v-supervisors">
+    <div class="card">
+      <h2 id="svTitle">Add supervisor</h2>
+      <div class="form-row">
+        <label style="flex:1;min-width:260px">Supervisor name<input id="svName"></label>
+        <label style="flex:1;min-width:260px">Position<input id="svPos"></label>
+        <button class="btn" id="svSave">Add</button><button class="btn alt" id="svCancel" style="display:none">Cancel</button>
+      </div>
+      <p class="note">These supervisors appear in the Supervisor dropdown on the Employees page, and the position fills in automatically.</p>
+    </div>
+    <div class="card">
+      <h2>Supervisors list</h2>
+      <div class="scroll"><table class="tbl" id="svTbl"></table></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-settings">
+    <div class="card">
+      <h2 id="coTitle">Cut-offs</h2>
+      <div class="form-row">
+        <label>Payroll type<select id="coType"><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <label>Cut-off date<input type="date" id="coCut"></label>
+        <label>Payroll month<input type="month" id="coPay"></label>
+        <label>Start date<input type="date" id="coStart"></label>
+        <label>End date<input type="date" id="coEnd"></label>
+        <button class="btn" id="coSave">Add</button><button class="btn alt" id="coCancel" style="display:none">Cancel</button>
+      </div>
+      <div class="form-row">
+        <label>Generate a full year<input type="number" id="gnYear" min="2020" max="2100" style="width:100px"></label>
+        <label>Payroll type<select id="gnType"><option value="BOTH">Both types</option><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <button class="btn alt" id="gnBtn">Generate</button>
+        <label>Show type<select id="coFType"><option value="ALL">All</option><option value="REGULAR">PLANTILLA / COS / EE</option><option value="MONTHLY">SPES / GIP</option></select></label>
+        <label>Show year<select id="coFYear"></select></label>
+      </div>
+      <p class="note">PLANTILLA / COS / EE: 26th to 25th, paid the following month. SPES / GIP: whole calendar month. Dates fill in automatically when you pick the cut-off date; you can still change them.</p>
+      <div class="scroll tall"><table class="tbl" id="coTbl"></table></div>
+    </div>
+
+    <div class="two">
+      <div>
+        <div class="card">
+          <h2 id="hoTitle">Holidays</h2>
+          <div class="form-row">
+            <label>Date<input type="date" id="hoDate"></label>
+            <label>Name<input id="hoName" placeholder="e.g. NEW YEAR'S DAY"></label>
+            <button class="btn" id="hoSave">Add</button><button class="btn alt" id="hoCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll tall"><table class="tbl" id="hoTbl"></table></div>
+        </div>
+        <div class="card">
+          <h2 id="suTitle">Work suspensions</h2>
+          <div class="form-row">
+            <label>Date<input type="date" id="suDate"></label>
+            <label>Kind<select id="suKind"><option value="WHOLE">Whole day</option><option value="AFTERNOON">Afternoon</option></select></label>
+            <label>Remarks<input id="suRem"></label>
+            <button class="btn" id="suSave">Add</button><button class="btn alt" id="suCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll tall"><table class="tbl" id="suTbl"></table></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h2 id="ltTitle">Leave types</h2>
+          <div class="form-row">
+            <label>Name<input id="ltName"></label>
+            <label>Allotment<select id="ltAcc"><option value="MONTHLY">Per month (credited every 1st)</option><option value="YEARLY">Fixed per year</option></select></label>
+            <label>Amount (days)<input type="number" step="0.25" id="ltAmt" style="width:100px"></label>
+            <label class="chk"><input type="checkbox" id="ltTot"> Count in SL + VL total</label>
+            <button class="btn" id="ltSave">Add</button><button class="btn alt" id="ltCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll"><table class="tbl" id="ltTbl"></table></div>
+          <p class="note">Monthly types accumulate from January to December and reset every January.</p>
+        </div>
+        <div class="card">
+          <h2 id="scTitle">Sector types</h2>
+          <div class="form-row">
+            <label>Sector<input id="scName" placeholder="e.g. SOLO PARENT"></label>
+            <button class="btn" id="scSave">Add</button><button class="btn alt" id="scCancel" style="display:none">Cancel</button>
+          </div>
+          <div class="scroll"><table class="tbl" id="scTbl"></table></div>
+          <p class="note">These are the choices in the Sector dropdown on the Employees page.</p>
+        </div>
+        <div class="card">
+          <h2>Backup</h2>
+          <p class="note">Everything is saved in this browser only (localStorage). Export a backup to move it to another device.</p>
+          <button class="btn alt" id="exp">Export JSON</button>
+          <label class="btn alt" style="display:inline-block;cursor:pointer">Import JSON<input type="file" id="imp" accept=".json" hidden></label>
+          <button class="link del" id="reset">Reset to defaults</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ================= CONSTANTS & DEFAULT DATA (from the KRISTINE - DTR workbook) ================= */
+const ACTS=['REGULAR ACTIVITY','WORK FROM HOME','LEAVE'];
+const STATUSES=['PLANTILLA','COS','EE','SPES','GIP'];
+const GROUP_LABEL={REGULAR:'PLANTILLA / COS / EE',MONTHLY:'SPES / GIP'};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const PAPERS={A4:{w:297,h:210,land:'A4 landscape',port:'A4 portrait'},Letter:{w:279.4,h:215.9,land:'letter landscape',port:'letter portrait'},Legal:{w:355.6,h:215.9,land:'13in 8.5in',port:'8.5in 13in'}};
+
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);};
+const long=d=>MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+let _u=0;const uid=()=>Date.now().toString(36)+(++_u).toString(36)+Math.random().toString(36).slice(2,5);
+const plabel=pm=>{if(!pm)return '';const p=pm.split('-').map(Number);return MONTHS[p[1]-1]+' '+p[0];};
+
+function genRegular(y){
+  const out=[];
+  for(let m=1;m<=12;m++){
+    const pmY=m===12?y+1:y, pmM=(m%12)+1;
+    out.push({id:uid(),type:'REGULAR',cutoff:y+'-'+pad(m)+'-26',payroll:pmY+'-'+pad(pmM),start:iso(new Date(y,m-2,26)),end:y+'-'+pad(m)+'-25'});
+  }
+  return out;
+}
+function genMonthly(y){
+  const out=[];
+  for(let m=1;m<=12;m++){
+    const last=new Date(y,m,0);
+    out.push({id:uid(),type:'MONTHLY',cutoff:iso(last),payroll:y+'-'+pad(m),start:y+'-'+pad(m)+'-01',end:iso(last)});
+  }
+  return out;
+}
+
+function makeDefaults(){
+  const E='PESO-0138916';
+  const L=(date,type)=>({id:uid(),emp:E,date:date,activity:'LEAVE',leaveType:type,remarks:''});
+  const W=(date,text)=>({id:uid(),emp:E,date:date,activity:'WORK FROM HOME',leaveType:'',remarks:text});
+  const monthly=genMonthly(2026).concat(genMonthly(2027));
+  const may=monthly.find(c=>c.cutoff==='2026-05-31'); if(may) may.cutoff='2026-05-30';
+  return {
+    office:{name:'PUBLIC EMPLOYMENT SERVICE OFFICE',address:'6F Civic Center Building A, Quezon City Hall',verifier:'ROGELIO L. REYES, MCD',verifierPos:'City Government Department Head III',lunchOut:'12:00',lunchIn:'1:00'},
+    employees:[{id:E,last:'AQUINO',first:'KRISTINE',middle:'D.',position:'LABOR EMPLOYMENT OFFICER II',supervisor:'MARIA TERESA A. GUARDIANO, MEM, LPT',supPosition:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION',schedIn:'8:00',schedOut:'5:00 PM',status:'PLANTILLA',mondayStatus:'REGULAR ACTIVITY',cell:'',qcId:'',sector:'PWD',email:'',joStart:'2022-01-03',plantillaStart:'2024-03-06'}],
+    cutoffs:genRegular(2026).concat(genRegular(2027),monthly),
+    holidays:[
+      ['2026-04-02','HOLY WEEK'],['2026-04-03','HOLY WEEK'],['2026-04-09','DAY OF VALOR'],['2026-05-01','LABOR DAY'],
+      ['2026-05-27','EIDL ADHA'],['2026-06-12','INDEPENDENCE DAY'],['2026-08-19','QUEZON DAY'],['2026-08-21','NINOY AQUINO DAY'],
+      ['2026-08-31','NATIONAL HEROES DAY'],['2026-10-12','QUEZON CITY DAY'],['2026-11-01','ALL SAINTS DAY'],
+      ['2026-11-16','SPECIAL NON WORKING - ASEAN'],['2026-11-17','SPECIAL NON WORKING - ASEAN'],['2026-11-18','SPECIAL NON WORKING - ASEAN'],
+      ['2026-11-30','BONIFACIO DAY'],['2026-12-08','IMMACULATE CONCEPTION DAY'],['2026-12-24','CHRISTMAS EVE'],
+      ['2026-12-25','CHRISTMAS DAY'],['2026-12-30','RIZAL DAY'],['2026-12-31','LAST DAY OF THE YEAR']
+    ].map(x=>({id:uid(),date:x[0],name:x[1]})),
+    suspensions:[['2026-04-01','AFTERNOON','1 day before Holiday'],['2026-08-06','WHOLE',''],['2026-08-28','AFTERNOON',''],['2026-09-28','WHOLE','']]
+      .map(x=>({id:uid(),date:x[0],kind:x[1],remarks:x[2]})),
+    leaveTypes:[
+      {id:uid(),name:'Sick Leave',accrual:'MONTHLY',amount:1.25,inTotal:true},
+      {id:uid(),name:'Vacation Leave',accrual:'MONTHLY',amount:1.25,inTotal:true},
+      {id:uid(),name:'Mandatory Leave',accrual:'YEARLY',amount:5,inTotal:false},
+      {id:uid(),name:'Special Leave',accrual:'YEARLY',amount:3,inTotal:false},
+      {id:uid(),name:'Wellness Leave',accrual:'YEARLY',amount:5,inTotal:false}
+    ],
+    activities:[
+      L('2026-04-07','Mandatory Leave'),L('2026-04-08','Mandatory Leave'),L('2026-04-10','Mandatory Leave'),
+      W('2026-04-27',"Continued Studies\n- Attended Hapinoy AI Training with QC PESO\n\nMeetings and Orientations\n- Attended Orientation on the Use of the Online Data Kit (ODK) for Materials Recovery Facilities (MRF) Geographic Information System (GIS) Tagging\n\nResearch and Development\n- Submitted Automated DTR for OPS - for checking of Sir Ed"),
+      W('2026-05-04',"Continued Studies\n- Attended the first day of \"Career Boost with PowerBI and AI\".\n\nResearch and Development\n- Continued the upgrades for the DTR and AR that can be used by the OPS team."),
+      L('2026-05-11','Special Leave'),
+      W('2026-05-18',"Research and Development\n- Continued the upgrades for the DTR and AR that can be used by the OPS team.\n\nContinued Learning\n- Fixed TESDA BSRS for re-Application for Cybersecurity NCIII of AMAES\n\nProgram Coordination\n- Coordination for SPES in Diocese of Cubao and Diocese of Novaliches.\n- Sent the Next Steps to the Coordinators and Created Group Chat for the Diocese of Cubao and Novaliches."),
+      W('2026-05-25',"Research and Development\n- Continued the upgrades for the DTR and AR that can be used by the OPS team.\n\nProgram Coordination\n- Coordination for SPES in Diocese of Cubao and Diocese of Novaliches.\n\nMeeting and Orientations\n- Attended MSD Orientation"),
+      L('2026-06-17','Wellness Leave'),L('2026-06-18','Wellness Leave'),L('2026-06-19','Vacation Leave'),
+      L('2026-08-03','Sick Leave'),L('2026-08-04','Sick Leave'),
+      W('2026-08-10',"Policy & Mandate Review:\n- Analyzed the mandates of CERP to identify potential expansion areas for training programs, partner institutions, high-demand skills, and industry sectors aligned with current Labor Market Information (LMI).\n\nProfessional Development:\n- Continued advancement through the Coursera Data Analytics Certification program to strengthen quantitative analysis and technical reporting skills.\n\nCertification Preparation:\n- Conducted focused review and study preparation for the TESDA Cyber Threat Intelligence and Analysis Level III Assessment."),
+      W('2026-08-18',"Professional Development\n- Continued advancement in the Coursera Data Analytics Certification program to enhance quantitative analysis and technical reporting capabilities.\n\nStakeholder & Partner Engagement\n- Attended an exploratory meeting with Yamahei to discuss potential collaboration opportunities.\n- Drafted and finalized the official Minutes of the Meeting (MOM) for record-keeping and follow-up actions.\n\nProgram Planning & Development\n- Continued the drafting and refinement of the Concept Paper for the upcoming CERP Stakeholders Day.\n\nProgram Coordination\n- Facilitated coordination with beneficiaries of the Special Program for Employment of Students (SPES) who will be participating in the Young Workers' Ambassadors program."),
+      L('2026-08-20','Vacation Leave'),
+      W('2026-09-10',"Professional Development\n- Continued advancement in the Coursera Data Analytics Certification program to enhance quantitative analysis and technical reporting capabilities.\n\nStakeholder & Partner Engagement\n- Updated MOU draft of Yamahei\n- Updated Letter of Requests to various divisions regarding MATCHA\n- Updated Letter of Requests to various divisions regarding YAMAHEI"),
+      L('2026-09-21','Sick Leave'),L('2026-09-22','Sick Leave'),
+      L('2026-11-19','Wellness Leave'),L('2026-11-20','Wellness Leave'),L('2026-12-07','Vacation Leave')
+    ],
+    supervisors:[
+      {id:uid(),name:'MARIA TERESA A. GUARDIANO, MEM, LPT',position:'OFFICER-IN-CHARGE, SPECIAL PROJECTS DIVISION'},
+      {id:uid(),name:'ROGELIO L. REYES, MCD',position:'City Government Department Head III'}
+    ],
+    sectors:['PWD','SENIOR','EMPLOYED','UNEMPLOYED','NEET','IN-SCHOOL','SOLO PARENT'].map(x=>({id:uid(),name:x})),
+    trainings:[],
+    sel:{emp:E,cut:null}
+  };
+}
+
+/* ================= STATE ================= */
+const KEY='peso-dtr-portal-v2';
+function load(){
+  const d=makeDefaults();
+  try{
+    const r=localStorage.getItem(KEY);
+    if(r){const o=JSON.parse(r);for(const k in d){if(o[k]!==undefined)d[k]=o[k];}d.office=Object.assign(makeDefaults().office,o.office||{});
+      if(o.supervisors===undefined){d.employees.forEach(e=>{if(e.supervisor&&!d.supervisors.some(x=>x.name===e.supervisor))d.supervisors.push({id:uid(),name:e.supervisor,position:e.supPosition||''});});}
+    }
+    d.employees.forEach(e=>{if(e.middle===undefined)e.middle=e.mi||'';delete e.mi;});
+  }catch(e){}
+  return d;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+const edit={co:null,ho:null,su:null,lt:null,act:null,em:null,sv:null,sc:null,tr:null};
+
+/* ================= HELPERS ================= */
+const emp=()=>S.employees.find(e=>e.id===S.sel.emp)||S.employees[0]||null;
+const groupOf=e=>(e&&(e.status==='SPES'||e.status==='GIP'))?'MONTHLY':'REGULAR';
+const midInit=e=>{const m=String(e.middle||'').trim();return m?m.charAt(0)+'.':'';};
+const empName=e=>(e.last+', '+e.first+(midInit(e)?' '+midInit(e):'')).toUpperCase();
+function cutObj(c){
+  if(!c)return null;
+  const start=parse(c.start),end=parse(c.end),days=[];
+  for(let d=new Date(start);d<=end;d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))days.push(d);
+  return {id:c.id,start:start,end:end,cut:parse(c.cutoff),payroll:plabel(c.payroll),days:days,type:c.type};
+}
+const cutsFor=g=>S.cutoffs.filter(c=>c.type===g).sort((a,b)=>a.start<b.start?-1:1);
+const cut=()=>{const e=emp();return e?cutObj(S.cutoffs.find(c=>c.id===S.sel.cut&&c.type===groupOf(e)&&(!S.sel.year||cutYear(c)===String(S.sel.year)))):null;};
+const inCut=(c,k)=>k>=iso(c.start)&&k<=iso(c.end);
+function findCutFor(k,g){return S.cutoffs.find(c=>c.type===g&&c.start<=k&&k<=c.end);}
+const cutYear=c=>c.cutoff.slice(0,4);
+const yearsFor=g=>Array.from(new Set(cutsFor(g).map(cutYear))).sort();
+const cutsForYear=(g,y)=>cutsFor(g).filter(c=>cutYear(c)===String(y));
+function ensureYear(g){
+  const ys=yearsFor(g);if(!ys.length){S.sel.year=null;return;}
+  if(!S.sel.year||!ys.includes(String(S.sel.year))){
+    const ty=String(new Date().getFullYear());
+    S.sel.year=ys.includes(ty)?ty:ys[ys.length-1];
+  }
+  S.sel.year=String(S.sel.year);
+}
+function defaultCut(g,keepPayroll,year){
+  const list=year?cutsForYear(g,year):cutsFor(g);if(!list.length)return null;
+  if(keepPayroll){const m=list.find(c=>c.payroll===keepPayroll);if(m)return m.id;}
+  const t=iso(new Date());
+  const cur=list.find(c=>c.start<=t&&t<=c.end);if(cur)return cur.id;
+  const past=list.filter(c=>c.start<=t);
+  if(year&&String(year)!==String(new Date().getFullYear()))return list[0].id;
+  return (past.length?past[past.length-1]:list[0]).id;
+}
+function tenure(from,to){
+  let y=to.getFullYear()-from.getFullYear(),m=to.getMonth()-from.getMonth(),d=to.getDate()-from.getDate();
+  if(d<0){m--;d+=new Date(to.getFullYear(),to.getMonth(),0).getDate();}
+  if(m<0){y--;m+=12;}
+  const u=(n,w)=>n+' '+w+(n===1?'':'s');
+  return u(y,'Year')+', '+u(m,'Month')+', '+u(d,'Day');
+}
+/* time helpers: "8:00" / "5:00 PM" */
+function parseT(s,isOut){
+  const m=String(s||'').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);if(!m)return null;
+  const h=+m[1];let ap=m[3]?m[3].toUpperCase():null;
+  if(!ap)ap=(h===12||(isOut&&h<8))?'PM':'AM';
+  return {h:h,mi:m[2],ap:ap};
+}
+const fmtA=t=>t?pad(t.h)+':'+t.mi+' '+t.ap:'';
+const fmtD=t=>t?t.h+':'+t.mi:'';
+const scheduleOf=e=>fmtA(parseT(e.schedIn,false))+' - '+fmtA(parseT(e.schedOut,true));
+const timesOf=e=>[fmtD(parseT(e.schedIn,false))||'8:00',S.office.lunchOut||'12:00',S.office.lunchIn||'1:00',fmtD(parseT(e.schedOut,true))||'5:00'];
+
+function info(d,e){
+  const k=iso(d),dow=d.getDay();
+  const h=S.holidays.find(x=>x.date===k);
+  if(h)return {t:'HOLIDAY',name:h.name};
+  if(dow===6)return {t:'SATURDAY'};
+  if(dow===0)return {t:'SUNDAY'};
+  const sp=S.suspensions.find(x=>x.date===k);
+  if(sp&&sp.kind==='WHOLE')return {t:'SUSPENDED'};
+  const a=S.activities.find(x=>x.emp===e.id&&x.date===k);
+  if(a&&a.activity==='LEAVE')return {t:'LEAVE',type:a.leaveType||'Leave'};
+  return {t:'WORK',pmSusp:!!(sp&&sp.kind==='AFTERNOON'),act:a||null};
+}
+function arLabel(i){
+  switch(i.t){
+    case 'HOLIDAY':return 'HOLIDAY';
+    case 'SATURDAY':return 'Saturday';
+    case 'SUNDAY':return 'Sunday';
+    case 'SUSPENDED':return 'SUSPENDED';
+    case 'LEAVE':return i.type;
+    default:return (i.act&&i.act.remarks)?i.act.remarks.trim():'';
+  }
+}
+const noCut='<p style="padding:20px;font-family:Arial">No cut-off is set up for this employee\'s payroll type in the selected year. Add one in Settings.</p>';
+
+/* ================= DTR (CSC Form 48) ================= */
+function dtrRow(n,d,e,t){
+  if(!d)return '<tr><td>'+n+'</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+  const i=info(d,e);
+  if(i.t==='WORK'){
+    if(i.pmSusp)return '<tr><td>'+n+'</td><td>'+t[0]+'</td><td>'+t[1]+'</td><td colspan="2" class="mg">SUSPENDED</td><td></td><td></td></tr>';
+    return '<tr><td>'+n+'</td><td>'+t[0]+'</td><td>'+t[1]+'</td><td>'+t[2]+'</td><td>'+t[3]+'</td><td></td><td></td></tr>';
+  }
+  return '<tr><td>'+n+'</td><td colspan="4" class="mg">'+i.t+'</td><td></td><td></td></tr>';
+}
+function dtrForm(seg,e){
+  const map={};(seg||[]).forEach(d=>map[d.getDate()]=d);
+  const t=timesOf(e);let rows='';
+  for(let n=1;n<=31;n++)rows+=dtrRow(n,map[n],e,t);
+  let label='';
+  if(seg){const a=seg[0],b=seg[seg.length-1];label=MON3[a.getMonth()]+' '+pad(a.getDate())+' - '+pad(b.getDate())+', '+a.getFullYear();}
+  return '<div class="dtr-form"><div class="f48">CIVIL SERVICE FORM NO. 48</div><h3>DAILY TIME RECORD</h3>'+
+    '<div class="nm">'+esc(empName(e))+'</div><div class="lbl">NAME</div>'+
+    '<div class="row"><span>For the month of</span><span class="ul">'+label+'</span></div>'+
+    '<div class="row"><span>Official hours for arrival</span><span>(Regular days)</span><span class="blank"></span></div>'+
+    '<div class="row"><span>and departure</span><span>(Saturdays)</span><span class="blank"></span></div>'+
+    '<table class="dtr"><thead><tr><th rowspan="2">Day</th><th colspan="2">Morning</th><th colspan="2">Afternoon</th><th colspan="2">Undertime</th></tr>'+
+    '<tr><th>Arrival</th><th>Departure</th><th>Arrival</th><th>Departure</th><th>Arrival</th><th>Departure</th></tr></thead><tbody>'+rows+
+    '<tr><td colspan="7" style="text-align:right;font-weight:bold;padding-right:6px">TOTAL</td></tr></tbody></table>'+
+    '<div class="cert">I certify on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.</div>'+
+    '<div class="sig">SIGNATURE</div></div>';
+}
+function renderDTR(){
+  const e=emp(),c=cut();
+  if(!e||!c){$('dtrOut').innerHTML=noCut;return;}
+  const segs=[];
+  c.days.forEach(d=>{const l=segs[segs.length-1];if(l&&l[0].getMonth()===d.getMonth())l.push(d);else segs.push([d]);});
+  let forms=segs.slice(0,2);
+  if(forms.length===1)forms.push(null);   /* one month only (e.g. SPES / GIP): second form left blank */
+  const O=S.office;
+  $('dtrOut').innerHTML='<div class="dtr-forms">'+forms.map(s=>dtrForm(s,e)).join('')+'</div>'+
+    '<div class="dtr-ver">Verified as to the prescribed hours<div class="vn">'+esc(O.verifier)+'</div><div class="vp">'+esc(O.verifierPos)+'</div></div>';
+  fitDTR();
+}
+function applyPaper(){
+  const p=PAPERS[$('paper').value]||PAPERS.A4;
+  $('pageStyle').textContent='@page{size:'+p.port+';margin:14mm}@page ar{size:'+p.port+';margin:14mm}@page dtr{size:'+p.port+';margin:8mm}';
+  fitDTR();
+}
+function fitDTR(){
+  const out=$('dtrOut'),page=$('dtrPage');if(!out||!page)return;
+  const p=PAPERS[$('paper').value]||PAPERS.A4;
+  page.style.width=(p.h-16)+'mm';
+  const vp=out.querySelector('.dtr-ver .vp');
+  if(vp){vp.style.fontSize='';let fs=8;while(vp.scrollWidth>vp.clientWidth+1&&fs>4){fs-=0.25;vp.style.fontSize=fs+'pt';}}
+  if(!$('fit').checked){
+    out.style.zoom=Math.min(1.2,Math.max(.5,(Number($('zoom').value)||100)/100));
+    return;
+  }
+  out.style.zoom=1;
+  const h=out.offsetHeight;if(!h)return;
+  const avail=(p.w-16)*3.7795*0.97;
+  out.style.zoom=Math.min(1,avail/h);
+}
+
+/* ================= ACCOMPLISHMENT REPORT ================= */
+function arHead(c,title){
+  const O=S.office;
+  return '<div class="hd"><div class="o">'+esc(O.name)+'</div>'+(O.address?'<div>'+esc(O.address)+'</div>':'')+'<div class="t">'+title+'</div></div>'+
+    '<div class="per"><div>Attendance Period : '+long(c.start)+' - '+long(c.end)+'</div><div>Payroll Period : '+esc(c.payroll)+'</div></div>';
+}
+function arSigs(e){
+  return '<div class="sigs"><div><div class="k">Submitted BY:</div><div class="n">'+esc(empName(e))+'</div><div>'+esc(e.position)+'</div></div>'+
+    '<div><div class="k">Approved By:</div><div class="n">'+esc(e.supervisor)+'</div><div>'+esc(e.supPosition)+'</div></div></div>';
+}
+function renderAR(){
+  const e=emp(),c=cut();
+  if(!e||!c){$('arOut').innerHTML=noCut;return;}
+  let rows='';
+  if(groupOf(e)==='MONTHLY'){
+    /* SPES / GIP: one row per day */
+    rows=c.days.map(d=>'<tr><td>'+long(d)+'</td><td>'+(esc(arLabel(info(d,e)))||'&nbsp;')+'</td></tr>').join('');
+  }else{
+    /* PLANTILLA / COS / EE: weekdays grouped, weekends one row each */
+    const blocks=[];let cur=null;
+    c.days.forEach(d=>{
+      const i=info(d,e),wk=d.getDay()===0||d.getDay()===6;
+      if(wk){cur=null;blocks.push([[d,i]]);}
+      else{if(!cur){cur=[];blocks.push(cur);}cur.push([d,i]);}
+    });
+    rows=blocks.map(b=>'<tr class="blk"><td colspan="2">'+b.map(x=>'<div class="dr"><div>'+long(x[0])+'</div><div class="t">'+(esc(arLabel(x[1]))||'&nbsp;')+'</div></div>').join('')+'</td></tr>').join('');
+  }
+  $('arOut').innerHTML=arHead(c,'ACCOMPLISHMENT REPORT')+
+    '<table class="ar"><thead><tr><th style="width:42%">DATE</th><th>TASK ACCOMPLISHED</th></tr></thead><tbody>'+rows+'</tbody></table>'+arSigs(e);
+}
+function renderWFH(){
+  const e=emp(),c=cut();
+  if(!e||!c){$('wfhOut').innerHTML=noCut;return;}
+  const list=S.activities.filter(a=>a.emp===e.id&&a.activity==='WORK FROM HOME'&&inCut(c,a.date)).sort((a,b)=>a.date<b.date?-1:1);
+  let rows=list.map(a=>'<tr><td style="width:24%">'+long(parse(a.date))+'</td><td class="l">'+esc(a.remarks)+'</td></tr>').join('');
+  if(!list.length)for(let n=0;n<10;n++)rows+='<tr><td style="height:9mm"></td><td></td></tr>';
+  $('wfhOut').innerHTML='<div class="hd"><div class="o">'+esc(S.office.name)+'</div><div class="t">ACCOMPLISHMENT REPORT</div></div>'+
+    '<div class="per"><div>Attendance Period : '+long(c.start)+' - '+long(c.end)+'</div></div>'+
+    '<table class="ar"><thead><tr><th>DATE</th><th>TASK ACCOMPLISHED</th></tr></thead><tbody>'+rows+'</tbody></table>'+arSigs(e);
+}
+
+/* ================= HOME ================= */
+const kv=pairs=>pairs.map(p=>'<span>'+p[0]+'</span><span>'+esc(p[1])+'</span>').join('');
+function miniTable(rows,cols){
+  if(!rows.length)return '<div class="empty">None</div>';
+  return '<table class="tbl"><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</tbody></table>';
+}
+function renderHome(){
+  const e=emp(),c=cut();
+  if(!e){return;}
+  const today=new Date(),g=groupOf(e);
+  const hy=String(S.sel.year||today.getFullYear()),th=trainHours(e.id,hy);
+  $('homeTrnT').textContent='Training hours – '+hy;
+  $('homeTrn').innerHTML=pillH(th.tech,'Technical')+pillH(th.sup,'Supervisorial')+pillH(th.mgr,'Managerial')+pillH(th.tech+th.sup+th.mgr,'Total');
+  if(c){
+    $('homeCut').innerHTML=kv([['Cut-off date',long(c.cut)],['Start date',long(c.start)],['End date',long(c.end)],['Payroll month',c.payroll],['Payroll type',GROUP_LABEL[g]]]);
+  }else $('homeCut').innerHTML='<span>Cut-off</span><span>None set up for '+GROUP_LABEL[g]+'</span>';
+  $('homeEmp').innerHTML=kv([['Employee',empName(e)],['Employee ID',e.id],['Schedule',scheduleOf(e)],['Status',e.status],['Position',e.position],['Supervisor',e.supervisor],['Payroll type',g],['AR format',g==='MONTHLY'?'Daily (one row per day)':'Weekly grouped']]);
+  const jo=e.joStart?parse(e.joStart):null,pl=e.plantillaStart?parse(e.plantillaStart):null;
+  const ten=[['Date today',long(today)]];
+  if(jo)ten.push(['Date hired (COS / JO / start)',long(jo)]);
+  if(pl)ten.push(['Date as plantilla',long(pl)]);
+  if(jo)ten.push(['Tenure in QC',tenure(jo,today)]);
+  if(pl)ten.push(['Tenure as plantilla',tenure(pl,today)]);
+  if(jo&&pl)ten.push(['Tenure as COS / JO',tenure(jo,pl)]);
+  $('homeTen').innerHTML=kv(ten);
+  const f=k=>long(parse(k));
+  if(c){
+    $('homeSus').innerHTML=miniTable(S.suspensions.filter(x=>inCut(c,x.date)).sort((a,b)=>a.date<b.date?-1:1).map(x=>[f(x.date),(x.kind==='WHOLE'?'Whole day':'Afternoon')+(x.remarks?' – '+x.remarks:'')]),['Date','Remarks']);
+    $('homeHol').innerHTML=miniTable(S.holidays.filter(x=>inCut(c,x.date)).sort((a,b)=>a.date<b.date?-1:1).map(x=>[f(x.date),x.name]),['Date','Remarks']);
+    $('homeLv').innerHTML=miniTable(S.activities.filter(a=>a.emp===e.id&&a.activity==='LEAVE'&&inCut(c,a.date)).sort((a,b)=>a.date<b.date?-1:1).map(a=>[f(a.date),a.leaveType]),['Date','Leave type']);
+  }else{['homeSus','homeHol','homeLv'].forEach(i=>$(i).innerHTML='<div class="empty">None</div>');}
+}
+
+/* ================= LEAVE USAGE ================= */
+function allotFor(t,year){
+  const now=new Date();
+  const months=year<now.getFullYear()?12:(year>now.getFullYear()?0:now.getMonth()+1);
+  return t.accrual==='MONTHLY'?t.amount*months:t.amount;
+}
+function usageFor(e,year){
+  return S.leaveTypes.map(t=>{
+    const used=S.activities.filter(a=>a.emp===e.id&&a.activity==='LEAVE'&&a.leaveType===t.name&&a.date.slice(0,4)===String(year)).length;
+    const al=allotFor(t,year);
+    return {t:t,allot:al,used:used,rem:al-used};
+  });
+}
+const n2=x=>x.toFixed(2);
+const isPlantilla=e=>!!e&&e.status==='PLANTILLA';
+function renderLeave(){
+  const e=emp();if(!e)return;
+  const year=+$('lvYear').value||new Date().getFullYear();
+  const pl=S.employees.filter(isPlantilla);
+  if(!isPlantilla(e)){
+    $('lvPills').innerHTML='<div class="pill"><b style="font-size:15px;padding-top:6px">'+esc(empName(e))+'</b><span>'+esc(e.status)+'</span></div>';
+    $('lvMine').innerHTML='<tbody><tr><td class="empty">Leave credits apply to PLANTILLA personnel only. '+esc(empName(e))+' is '+esc(e.status)+', so there is no leave data to show.</td></tr></tbody>';
+    $('lvNote').textContent='Select a PLANTILLA employee to view leave usage.';
+  }else{
+  const u=usageFor(e,year);
+  const tot=u.filter(x=>x.t.inTotal).reduce((s,x)=>s+x.rem,0);
+  $('lvPills').innerHTML='<div class="pill"><b>'+n2(tot)+'</b><span>Total SL + VL remaining</span></div><div class="pill"><b style="font-size:15px;padding-top:6px">'+esc(empName(e))+'</b><span>'+year+'</span></div>';
+  $('lvMine').innerHTML='<thead><tr><th>Leave type</th><th>Allotment</th><th>Used</th><th>Remaining</th></tr></thead><tbody>'+
+    u.map(x=>'<tr><td>'+esc(x.t.name)+'</td><td>'+n2(x.allot)+'</td><td>'+n2(x.used)+'</td><td><strong>'+n2(x.rem)+'</strong></td></tr>').join('')+'</tbody>';
+  const mon=S.leaveTypes.filter(t=>t.accrual==='MONTHLY').map(t=>t.name+' +'+t.amount+'/month');
+  $('lvNote').textContent=(mon.length?'Accrual: '+mon.join(', ')+', credited on the 1st of each month from January to December and reset every January. ':'')+'“Used” counts the leaves filed in Individual Activities for '+year+'.';
+  }
+  let h1='<tr><th rowspan="2">Employee</th>',h2='<tr>';
+  S.leaveTypes.forEach(t=>{h1+='<th colspan="3">'+esc(t.name)+'</th>';h2+='<th>Allot.</th><th>Used</th><th>Rem.</th>';});
+  h1+='<th rowspan="2">SL + VL remaining</th></tr>';h2+='</tr>';
+  let body='';
+  pl.forEach(m=>{
+    const x=usageFor(m,year);
+    body+='<tr'+(m.id===e.id?' class="me"':'')+'><td>'+esc(empName(m))+'</td>'+x.map(y=>'<td>'+n2(y.allot)+'</td><td>'+n2(y.used)+'</td><td>'+n2(y.rem)+'</td>').join('')+'<td><strong>'+n2(x.filter(y=>y.t.inTotal).reduce((s,y)=>s+y.rem,0))+'</strong></td></tr>';
+  });
+  if(!pl.length)body='<tr><td colspan="'+(S.leaveTypes.length*3+2)+'" class="empty">No PLANTILLA personnel.</td></tr>';
+  $('lvAll').innerHTML='<thead>'+h1+h2+'</thead><tbody>'+body+'</tbody>';
+}
+
+/* ================= INDIVIDUAL ACTIVITIES ================= */
+function renderAct(){
+  const e=emp();if(!e)return;
+  $('actLeave').innerHTML='<option value="">—</option>'+S.leaveTypes.map(t=>'<option>'+esc(t.name)+'</option>').join('');
+  syncActForm();
+  const g=groupOf(e);
+  const rows=S.activities.filter(a=>a.emp===e.id).sort((a,b)=>a.date<b.date?-1:1);
+  $('actListTitle').textContent='Activities – '+empName(e);
+  $('actTbl').innerHTML='<thead><tr><th>Date</th><th>Activity</th><th>Leave type</th><th>Remarks</th><th>Cut-off</th><th>Month</th><th>Year</th><th></th></tr></thead><tbody>'+
+    (rows.length?rows.map(a=>{
+      const c=findCutFor(a.date,g),d=parse(a.date);
+      const rm=a.remarks.length>180?a.remarks.slice(0,180)+'…':a.remarks;
+      return '<tr><td style="white-space:nowrap">'+long(d)+'</td><td>'+a.activity+'</td><td>'+esc(a.leaveType)+'</td><td class="pre">'+esc(rm)+'</td><td style="white-space:nowrap">'+(c?long(parse(c.cutoff)):'—')+'</td><td>'+(d.getMonth()+1)+'</td><td>'+d.getFullYear()+'</td>'+
+        '<td style="white-space:nowrap"><button class="link" data-a="edit-act" data-id="'+a.id+'">Edit</button><button class="link del" data-a="del-act" data-id="'+a.id+'">Delete</button></td></tr>';
+    }).join(''):'<tr><td colspan="8" class="empty">No activities yet.</td></tr>')+'</tbody>';
+}
+function syncActForm(){
+  const isLeave=$('actType').value==='LEAVE';
+  $('actLeave').disabled=!isLeave;
+  if(!isLeave)$('actLeave').value='';
+}
+function resetAct(){
+  edit.act=null;$('actDate').value='';$('actTo').value='';$('actType').value='REGULAR ACTIVITY';$('actLeave').value='';$('actRemarks').value='';
+  $('actTitle').textContent='Add activity';$('actSave').textContent='Add';$('actCancel').style.display='none';$('actTo').disabled=false;syncActForm();
+}
+function saveAct(){
+  const e=emp(),d=$('actDate').value;if(!e||!d){alert('Choose a date.');return;}
+  const type=$('actType').value,lt=$('actLeave').value,rm=$('actRemarks').value.trim();
+  if(type==='LEAVE'&&!lt){alert('Choose a leave type.');return;}
+  const put=date=>{
+    S.activities=S.activities.filter(a=>!(a.emp===e.id&&a.date===date&&a.id!==edit.act));
+    const ex=edit.act?S.activities.find(a=>a.id===edit.act):null;
+    const rec={id:ex?ex.id:uid(),emp:e.id,date:date,activity:type,leaveType:type==='LEAVE'?lt:'',remarks:rm};
+    if(ex)Object.assign(ex,rec);else S.activities.push(rec);
+  };
+  const to=$('actTo').value;
+  if(!edit.act&&to&&to>d){
+    for(let x=parse(d);iso(x)<=to;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){if(x.getDay()!==0&&x.getDay()!==6)put(iso(x));}
+  }else put(d);
+  save();resetAct();renderAll();
+}
+
+/* ================= EMPLOYEES ================= */
+const EM_FIELDS=[['id','Employee ID'],['last','Last name'],['first','First name'],['middle','Middle name'],['position','Position'],['supervisor','Supervisor','sup'],['supPosition','Supervisor position','ro'],
+  ['schedIn','Sched in (e.g. 8:00)'],['schedOut','Sched out (e.g. 5:00 PM)'],['status','Status','select'],['mondayStatus','Monday status'],['cell','Cellphone number'],['qcId','QC ID number'],['sector','Sector','sector'],['email','Email address'],
+  ['joStart','Start in QC – JO / COS','date'],['plantillaStart','Start as plantilla','date']];
+function emFormHtml(){
+  return EM_FIELDS.map(f=>{
+    const id='em_'+f[0];
+    if(f[2]==='select')return '<label style="min-width:150px">'+f[1]+'<select id="'+id+'">'+STATUSES.map(s=>'<option>'+s+'</option>').join('')+'</select></label>';
+    if(f[2]==='sup'||f[2]==='sector')return '<label style="min-width:190px;flex:1">'+f[1]+'<select id="'+id+'"></select></label>';
+    if(f[2]==='ro')return '<label style="min-width:190px;flex:1">'+f[1]+' (auto)<input id="'+id+'" type="text" readonly style="background:#eef2f9"></label>';
+    return '<label style="min-width:190px;flex:1">'+f[1]+'<input id="'+id+'" type="'+(f[2]||'text')+'"></label>';
+  }).join('');
+}
+function fillSel(id,vals,ph,val){
+  const el=$(id),cur=val!==undefined?val:el.value,list=vals.slice();
+  if(cur&&!list.includes(cur))list.push(cur);
+  el.innerHTML='<option value="">'+ph+'</option>'+list.map(v=>'<option>'+esc(v)+'</option>').join('');
+  el.value=cur;
+}
+function refreshEmSelects(supVal,secVal){
+  fillSel('em_supervisor',S.supervisors.map(x=>x.name),'— Select supervisor —',supVal);
+  fillSel('em_sector',S.sectors.map(x=>x.name),'— Select sector —',secVal);
+}
+function renderEmployees(){
+  const cols=['Name','Employee ID','Last name','First name','Middle name','Position','Supervisor','Sup position','Sched in','Sched out','Status','Monday status','Payroll type','Cellphone','QC ID','Sector','Email','Start in QC – JO','Start as plantilla'];
+  $('emTbl').innerHTML='<thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'<th></th></tr></thead><tbody>'+S.employees.map(e=>
+    '<tr'+(e.id===S.sel.emp?' class="me"':'')+'><td>'+esc(empName(e))+'</td><td>'+esc(e.id)+'</td><td>'+esc(e.last)+'</td><td>'+esc(e.first)+'</td><td>'+esc(e.middle)+'</td><td>'+esc(e.position)+'</td><td>'+esc(e.supervisor)+'</td><td>'+esc(e.supPosition)+'</td><td>'+esc(e.schedIn)+'</td><td>'+esc(e.schedOut)+'</td><td>'+esc(e.status)+'</td><td>'+esc(e.mondayStatus)+'</td><td>'+groupOf(e)+'</td><td>'+esc(e.cell)+'</td><td>'+esc(e.qcId)+'</td><td>'+esc(e.sector)+'</td><td>'+esc(e.email)+'</td><td style="white-space:nowrap">'+(e.joStart?long(parse(e.joStart)):'')+'</td><td style="white-space:nowrap">'+(e.plantillaStart?long(parse(e.plantillaStart)):'')+'</td>'+
+    '<td style="white-space:nowrap"><button class="link" data-a="edit-em" data-id="'+esc(e.id)+'">Edit</button><button class="link del" data-a="del-em" data-id="'+esc(e.id)+'">Delete</button></td></tr>').join('')+'</tbody>';
+  refreshEmSelects();
+  const O=S.office;
+  const of=[['name','Office name'],['address','Address'],['verifier','DTR verified by'],['verifierPos','Verifier position'],['lunchOut','Lunch out (DTR)'],['lunchIn','Lunch in (DTR)']];
+  $('ofForm').innerHTML=of.map(f=>'<label style="min-width:220px;flex:1">'+f[1]+'<input data-of="'+f[0]+'" value="'+esc(O[f[0]])+'"></label>').join('');
+}
+function resetEm(){
+  edit.em=null;EM_FIELDS.forEach(f=>{$('em_'+f[0]).value='';});$('em_status').value='PLANTILLA';refreshEmSelects('','');
+  $('em_mondayStatus').value='REGULAR ACTIVITY';$('emTitle').textContent='Add employee';$('emSave').textContent='Add';$('emCancel').style.display='none';
+}
+function saveEm(){
+  const r={};EM_FIELDS.forEach(f=>r[f[0]]=$('em_'+f[0]).value.trim());
+  if(!r.id||!r.last||!r.first){alert('Employee ID, last name and first name are required.');return;}
+  if(S.employees.some(e=>e.id===r.id&&e.id!==edit.em)){alert('That employee ID already exists.');return;}
+  r.last=r.last.toUpperCase();r.first=r.first.toUpperCase();r.middle=r.middle.toUpperCase();
+  if(edit.em){
+    const old=S.employees.find(e=>e.id===edit.em);
+    if(old.id!==r.id){S.activities.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});S.trainings.forEach(a=>{if(a.emp===old.id)a.emp=r.id;});if(S.sel.emp===old.id)S.sel.emp=r.id;}
+    Object.assign(old,r);delete old.mi;
+  }else{S.employees.push(r);}
+  save();resetEm();renderAll();
+}
+
+/* ================= MANAGE DATA ================= */
+const rowBtns=(k,id)=>'<td style="white-space:nowrap"><button class="link" data-a="edit-'+k+'" data-id="'+id+'">Edit</button><button class="link del" data-a="del-'+k+'" data-id="'+id+'">Delete</button></td>';
+function renderManage(){
+  /* cut-offs */
+  const ft=$('coFType').value,fy=$('coFYear').value;
+  const list=S.cutoffs.filter(c=>(ft==='ALL'||c.type===ft)&&(fy==='ALL'||c.end.slice(0,4)===fy)).sort((a,b)=>a.start<b.start?-1:(a.start>b.start?1:0));
+  $('coTbl').innerHTML='<thead><tr><th>Payroll type</th><th>Cut-off date</th><th>Payroll month</th><th>Start date</th><th>End date</th><th></th></tr></thead><tbody>'+
+    (list.length?list.map(c=>'<tr><td>'+GROUP_LABEL[c.type]+'</td><td>'+long(parse(c.cutoff))+'</td><td>'+plabel(c.payroll)+'</td><td>'+long(parse(c.start))+'</td><td>'+long(parse(c.end))+'</td>'+rowBtns('co',c.id)+'</tr>').join(''):'<tr><td colspan="6" class="empty">None</td></tr>')+'</tbody>';
+  /* holidays */
+  const hs=S.holidays.slice().sort((a,b)=>a.date<b.date?-1:1);
+  $('hoTbl').innerHTML='<thead><tr><th>Date</th><th>Name</th><th></th></tr></thead><tbody>'+(hs.length?hs.map(h=>'<tr><td>'+long(parse(h.date))+'</td><td>'+esc(h.name)+'</td>'+rowBtns('ho',h.id)+'</tr>').join(''):'<tr><td colspan="3" class="empty">None</td></tr>')+'</tbody>';
+  /* suspensions */
+  const ss=S.suspensions.slice().sort((a,b)=>a.date<b.date?-1:1);
+  $('suTbl').innerHTML='<thead><tr><th>Date</th><th>Kind</th><th>Remarks</th><th></th></tr></thead><tbody>'+(ss.length?ss.map(s=>'<tr><td>'+long(parse(s.date))+'</td><td>'+(s.kind==='WHOLE'?'Whole day':'Afternoon')+'</td><td>'+esc(s.remarks)+'</td>'+rowBtns('su',s.id)+'</tr>').join(''):'<tr><td colspan="4" class="empty">None</td></tr>')+'</tbody>';
+  /* leave types */
+  $('ltTbl').innerHTML='<thead><tr><th>Name</th><th>Allotment</th><th>Amount</th><th>SL + VL</th><th></th></tr></thead><tbody>'+(S.leaveTypes.length?S.leaveTypes.map(t=>'<tr><td>'+esc(t.name)+'</td><td>'+(t.accrual==='MONTHLY'?'Per month':'Per year')+'</td><td>'+t.amount+'</td><td>'+(t.inTotal?'Yes':'')+'</td>'+rowBtns('lt',t.id)+'</tr>').join(''):'<tr><td colspan="5" class="empty">None</td></tr>')+'</tbody>';
+}
+const fmtH=x=>String(+(+x).toFixed(2));
+const pillH=(h,l)=>'<div class="pill"><b>'+fmtH(h)+'</b><span>'+l+' hours</span></div>';
+function trainHours(id,y){
+  let tech=0,sup=0,mgr=0;
+  S.trainings.forEach(t=>{if(t.emp===id&&t.start.slice(0,4)===String(y)){const h=+t.hours||0;if(t.type==='SUPERVISORIAL')sup+=h;else if(t.type==='MANAGERIAL')mgr+=h;else tech+=h;}});
+  return {tech:tech,sup:sup,mgr:mgr};
+}
+function trYears(){
+  const ys=new Set(S.trainings.map(t=>t.start.slice(0,4)));
+  ys.add(String(new Date().getFullYear()));if(S.sel.tyear)ys.add(String(S.sel.tyear));
+  return Array.from(ys).sort();
+}
+function renderTrain(){
+  const e=emp();if(!e)return;
+  if(!S.sel.tyear)S.sel.tyear=String(new Date().getFullYear());
+  $('trnYear').innerHTML=trYears().map(y=>'<option>'+y+'</option>').join('');$('trnYear').value=String(S.sel.tyear);
+  const y=String(S.sel.tyear),h=trainHours(e.id,y);
+  $('trPillTitle').textContent='Training hours – '+y;
+  $('trPills').innerHTML=pillH(h.tech,'Technical')+pillH(h.sup,'Supervisorial')+pillH(h.mgr,'Managerial')+pillH(h.tech+h.sup+h.mgr,'Total')+
+    '<div class="pill"><b style="font-size:15px;padding-top:6px">'+esc(empName(e))+'</b><span>'+y+'</span></div>';
+  const rows=S.trainings.filter(t=>t.emp===e.id&&t.start.slice(0,4)===y).sort((a,b)=>a.start<b.start?-1:(a.start>b.start?1:0));
+  $('trListTitle').textContent='Trainings – '+empName(e)+' ('+y+')';
+  $('trTbl').innerHTML='<thead><tr><th>Training name</th><th>Start date</th><th>End date</th><th>No. of hours</th><th>Type of training</th><th>Conducted / sponsored by</th><th></th></tr></thead><tbody>'+
+    (rows.length?rows.map(t=>'<tr><td class="pre">'+esc(t.name)+'</td><td style="white-space:nowrap">'+long(parse(t.start))+'</td><td style="white-space:nowrap">'+long(parse(t.end))+'</td><td>'+fmtH(t.hours)+'</td><td>'+esc(t.type)+'</td><td class="pre">'+esc(t.by)+'</td>'+rowBtns('tr',t.id)+'</tr>').join(''):
+     '<tr><td colspan="7" class="empty">No trainings recorded for '+y+'.</td></tr>')+'</tbody>';
+}
+function resetTr(){
+  edit.tr=null;['trName','trStart','trEnd','trHrs','trBy'].forEach(i=>$(i).value='');$('trType').value='TECHNICAL';
+  $('trTitle').textContent='Add training';$('trSave').textContent='Add';$('trCancel').style.display='none';
+}
+function saveTr(){
+  const e=emp();if(!e)return;
+  const r={name:$('trName').value.trim(),start:$('trStart').value,end:$('trEnd').value,hours:parseFloat($('trHrs').value),type:$('trType').value,by:$('trBy').value.trim()};
+  if(!r.name||!r.start||!r.end||isNaN(r.hours)||!r.by){alert('Fill in the training name, start date, end date, number of hours and who conducted / sponsored it.');return;}
+  if(r.end<r.start){alert('End date must be on or after the start date.');return;}
+  if(r.hours<=0){alert('Number of hours must be greater than zero.');return;}
+  if(edit.tr)Object.assign(S.trainings.find(t=>t.id===edit.tr),r);else S.trainings.push(Object.assign({id:uid(),emp:e.id},r));
+  S.sel.tyear=r.start.slice(0,4);
+  save();resetTr();renderAll();
+}
+function renderSupervisors(){
+  const list=S.supervisors.slice().sort((a,b)=>a.name<b.name?-1:1);
+  $('svTbl').innerHTML='<thead><tr><th>Supervisor name</th><th>Position</th><th></th></tr></thead><tbody>'+
+    (list.length?list.map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.position)+'</td>'+rowBtns('sv',v.id)+'</tr>').join(''):'<tr><td colspan="3" class="empty">No supervisors yet.</td></tr>')+'</tbody>';
+}
+function resetSv(){edit.sv=null;$('svName').value='';$('svPos').value='';$('svTitle').textContent='Add supervisor';$('svSave').textContent='Add';$('svCancel').style.display='none';}
+function saveSv(){
+  const n=$('svName').value.trim().toUpperCase(),p=$('svPos').value.trim();
+  if(!n||!p){alert('Enter the supervisor name and position.');return;}
+  if(S.supervisors.some(x=>x.name.toLowerCase()===n.toLowerCase()&&x.id!==edit.sv)){alert('That supervisor is already in the list.');return;}
+  if(edit.sv){
+    const v=S.supervisors.find(x=>x.id===edit.sv);
+    S.employees.forEach(e=>{if(e.supervisor===v.name){e.supervisor=n;e.supPosition=p;}});
+    v.name=n;v.position=p;
+  }else S.supervisors.push({id:uid(),name:n,position:p});
+  save();resetSv();renderAll();
+}
+function renderSectors(){
+  $('scTbl').innerHTML='<thead><tr><th>Sector</th><th></th></tr></thead><tbody>'+
+    (S.sectors.length?S.sectors.map(x=>'<tr><td>'+esc(x.name)+'</td>'+rowBtns('sc',x.id)+'</tr>').join(''):'<tr><td colspan="2" class="empty">None</td></tr>')+'</tbody>';
+}
+function resetSc(){edit.sc=null;$('scName').value='';$('scTitle').textContent='Sector types';$('scSave').textContent='Add';$('scCancel').style.display='none';}
+function saveSc(){
+  const n=$('scName').value.trim().toUpperCase();if(!n){alert('Enter a sector name.');return;}
+  if(S.sectors.some(x=>x.name===n&&x.id!==edit.sc)){alert('That sector already exists.');return;}
+  if(edit.sc){const x=S.sectors.find(y=>y.id===edit.sc);S.employees.forEach(e=>{if(e.sector===x.name)e.sector=n;});x.name=n;}
+  else S.sectors.push({id:uid(),name:n});
+  save();resetSc();renderAll();
+}
+function fillYearFilter(){
+  const ys=Array.from(new Set(S.cutoffs.map(c=>c.end.slice(0,4)))).sort();
+  const cur=$('coFYear').value;
+  $('coFYear').innerHTML='<option value="ALL">All</option>'+ys.map(y=>'<option>'+y+'</option>').join('');
+  $('coFYear').value=ys.includes(cur)||cur==='ALL'?cur:(ys.includes(String(new Date().getFullYear()))?String(new Date().getFullYear()):'ALL');
+}
+function autoCoDates(){
+  const c=$('coCut').value;if(!c)return;
+  const d=parse(c),y=d.getFullYear(),m=d.getMonth();
+  if($('coType').value==='REGULAR'){
+    $('coStart').value=iso(new Date(y,m-1,26));$('coEnd').value=y+'-'+pad(m+1)+'-25';
+    const p=new Date(y,m+1,1);$('coPay').value=p.getFullYear()+'-'+pad(p.getMonth()+1);
+  }else{
+    $('coStart').value=y+'-'+pad(m+1)+'-01';$('coEnd').value=iso(new Date(y,m+1,0));$('coPay').value=y+'-'+pad(m+1);
+  }
+}
+function resetCo(){edit.co=null;['coCut','coPay','coStart','coEnd'].forEach(i=>$(i).value='');$('coTitle').textContent='Cut-offs';$('coSave').textContent='Add';$('coCancel').style.display='none';}
+function resetHo(){edit.ho=null;$('hoDate').value='';$('hoName').value='';$('hoTitle').textContent='Holidays';$('hoSave').textContent='Add';$('hoCancel').style.display='none';}
+function resetSu(){edit.su=null;$('suDate').value='';$('suRem').value='';$('suKind').value='WHOLE';$('suTitle').textContent='Work suspensions';$('suSave').textContent='Add';$('suCancel').style.display='none';}
+function resetLt(){edit.lt=null;$('ltName').value='';$('ltAmt').value='';$('ltAcc').value='MONTHLY';$('ltTot').checked=false;$('ltTitle').textContent='Leave types';$('ltSave').textContent='Add';$('ltCancel').style.display='none';}
+
+/* ================= RENDER / NAV ================= */
+function updateEmpSelect(){
+  $('empSel').innerHTML=S.employees.map(e=>'<option value="'+esc(e.id)+'">'+esc(empName(e))+'</option>').join('');
+  if(!S.employees.find(e=>e.id===S.sel.emp)&&S.employees[0])S.sel.emp=S.employees[0].id;
+  $('empSel').value=S.sel.emp;
+}
+function updateCutSelect(keepPayroll){
+  const e=emp(),g=groupOf(e);
+  ensureYear(g);
+  const ys=yearsFor(g);
+  $('selYear').innerHTML=ys.length?ys.map(y=>'<option>'+y+'</option>').join(''):'<option value="">—</option>';
+  $('selYear').value=S.sel.year||'';
+  const list=S.sel.year?cutsForYear(g,S.sel.year):[];
+  $('cutoff').innerHTML=list.length?list.map(c=>'<option value="'+c.id+'">'+long(parse(c.cutoff))+'  ('+MON3[parse(c.start).getMonth()]+' '+parse(c.start).getDate()+' – '+MON3[parse(c.end).getMonth()]+' '+parse(c.end).getDate()+', '+parse(c.end).getFullYear()+')</option>').join(''):'<option value="">No cut-off set up for this year</option>';
+  if(!list.find(c=>c.id===S.sel.cut))S.sel.cut=defaultCut(g,keepPayroll,S.sel.year);
+  $('cutoff').value=S.sel.cut||'';
+}
+function renderAll(){
+  updateEmpSelect();updateCutSelect();fillYearFilter();
+  const e=emp();
+  $('hdrWho').innerHTML=e?'<strong>'+esc(empName(e))+'</strong><br><span style="opacity:.85">'+esc(e.position)+'</span>':'';
+  renderHome();renderDTR();renderAR();renderWFH();renderLeave();renderAct();renderEmployees();renderManage();renderTrain();renderSupervisors();renderSectors();
+  save();
+}
+const VIEW_CFG={home:['year','cut','emp'],dtr:['year','cut','emp','paper','fit','zoom','print'],ar:['year','cut','emp','paper','print'],wfh:['year','cut','emp','paper','print'],leave:['emp'],activities:['emp'],employees:[],supervisors:[],trainings:['emp','tyear'],settings:[]};
+let curView='home';
+function show(v){
+  curView=v;
+  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='v-'+v));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  const cfg=VIEW_CFG[v]||[];
+  document.querySelectorAll('#toolbar [data-t]').forEach(el=>el.style.display=cfg.includes(el.dataset.t)?'':'none');
+  $('toolbar').style.display=cfg.length?'':'none';
+  $('printNote').style.display='none';
+  try{history.replaceState(null,'','#'+v);}catch(e){}
+  if(v==='dtr')fitDTR();
+}
+
+/* ================= PRINT ================= */
+let printed=false;
+window.addEventListener('beforeprint',()=>{printed=true;if(curView==='dtr')fitDTR();});
+function note(msg){const n=$('printNote');n.textContent=msg;n.style.display='block';}
+function fallbackPrint(){
+  const paper=document.querySelector('.view.active .paper');if(!paper)return;
+  const css=$('mainCss').textContent+$('pageStyle').textContent;
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Print</title><style>'+css+'</style></head><body style="background:#fff;margin:0">'+paper.outerHTML+
+    '<script>window.onload=function(){setTimeout(function(){window.print();},300);};<\/script></body></html>';
+  const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  const w=window.open(url,'_blank');
+  if(!w)note('Printing is blocked inside this preview. Open index.html directly in your browser (or from your GitHub Pages link) and click Print, or allow pop-ups for this page.');
+}
+function doPrint(){
+  printed=false;
+  if(curView==='dtr')fitDTR();
+  try{window.print();}catch(e){}
+  setTimeout(()=>{if(!printed)fallbackPrint();},700);
+}
+
+/* ================= INIT & EVENTS ================= */
+(function init(){
+  const nowY=new Date().getFullYear();
+  $('lvYear').innerHTML=[nowY-1,nowY,nowY+1].map(y=>'<option>'+y+'</option>').join('');$('lvYear').value=nowY;
+  $('gnYear').value=nowY+1;
+  $('actType').innerHTML=ACTS.map(a=>'<option>'+a+'</option>').join('');
+  $('emForm').innerHTML=emFormHtml();
+  resetEm();resetAct();
+  applyPaper();
+  renderAll();
+  const v=(location.hash||'#home').slice(1);
+  show(VIEW_CFG[v]?v:'home');
+
+  $('tabs').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v);};
+  $('cutoff').onchange=()=>{S.sel.cut=$('cutoff').value;renderAll();};
+  $('selYear').onchange=()=>{
+    const g=groupOf(emp()),old=S.cutoffs.find(x=>x.id===S.sel.cut);
+    S.sel.year=$('selYear').value;
+    const list=cutsForYear(g,S.sel.year);
+    const same=old?list.find(c=>c.cutoff.slice(5,7)===old.cutoff.slice(5,7)):null;
+    S.sel.cut=same?same.id:defaultCut(g,null,S.sel.year);
+    renderAll();
+  };
+  $('empSel').onchange=()=>{
+    const c=S.cutoffs.find(x=>x.id===S.sel.cut);
+    S.sel.emp=$('empSel').value;
+    const g=groupOf(emp());
+    if(!c||c.type!==g)S.sel.cut=defaultCut(g,c?c.payroll:null,S.sel.year);
+    renderAll();
+  };
+  $('paper').onchange=applyPaper;
+  $('fit').onchange=()=>{$('zoom').disabled=$('fit').checked;fitDTR();};
+  $('zoom').disabled=true;
+  $('zoom').oninput=fitDTR;
+  window.addEventListener('resize',()=>{if(curView==='dtr')fitDTR();});
+  $('printBtn').onclick=doPrint;
+
+  /* activities */
+  $('actType').onchange=syncActForm;
+  $('actSave').onclick=saveAct;
+  $('actCancel').onclick=resetAct;
+
+  /* employees */
+  $('em_supervisor').onchange=()=>{const sv=S.supervisors.find(x=>x.name===$('em_supervisor').value);$('em_supPosition').value=sv?sv.position:'';};
+  $('emSave').onclick=saveEm;
+  $('emCancel').onclick=resetEm;
+  $('ofForm').onchange=e=>{const k=e.target.dataset.of;if(!k)return;S.office[k]=e.target.value.trim();save();renderAll();};
+
+  /* cut-offs */
+  $('coCut').onchange=autoCoDates;
+  $('coType').onchange=autoCoDates;
+  $('coFType').onchange=renderManage;
+  $('coFYear').onchange=renderManage;
+  $('coSave').onclick=()=>{
+    const r={type:$('coType').value,cutoff:$('coCut').value,payroll:$('coPay').value,start:$('coStart').value,end:$('coEnd').value};
+    if(!r.cutoff||!r.payroll||!r.start||!r.end){alert('Fill in the cut-off date, payroll month, start date and end date.');return;}
+    if(r.end<r.start){alert('End date must be after the start date.');return;}
+    if(edit.co){Object.assign(S.cutoffs.find(c=>c.id===edit.co),r);}else S.cutoffs.push(Object.assign({id:uid()},r));
+    save();resetCo();renderAll();
+  };
+  $('coCancel').onclick=resetCo;
+  $('gnBtn').onclick=()=>{
+    const y=+$('gnYear').value;if(!y)return;const t=$('gnType').value;
+    let add=[];if(t!=='MONTHLY')add=add.concat(genRegular(y));if(t!=='REGULAR')add=add.concat(genMonthly(y));
+    add=add.filter(n=>!S.cutoffs.some(c=>c.type===n.type&&c.payroll===n.payroll));
+    S.cutoffs=S.cutoffs.concat(add);save();renderAll();alert(add.length+' cut-off(s) added.');
+  };
+
+  /* holidays */
+  $('hoSave').onclick=()=>{
+    const d=$('hoDate').value,n=$('hoName').value.trim().toUpperCase();if(!d||!n){alert('Enter a date and a name.');return;}
+    if(edit.ho){const h=S.holidays.find(x=>x.id===edit.ho);h.date=d;h.name=n;}else S.holidays.push({id:uid(),date:d,name:n});
+    save();resetHo();renderAll();
+  };
+  $('hoCancel').onclick=resetHo;
+
+  /* suspensions */
+  $('suSave').onclick=()=>{
+    const d=$('suDate').value;if(!d){alert('Enter a date.');return;}
+    const r={date:d,kind:$('suKind').value,remarks:$('suRem').value.trim()};
+    if(edit.su)Object.assign(S.suspensions.find(x=>x.id===edit.su),r);else S.suspensions.push(Object.assign({id:uid()},r));
+    save();resetSu();renderAll();
+  };
+  $('suCancel').onclick=resetSu;
+
+  /* leave types */
+  $('ltSave').onclick=()=>{
+    const n=$('ltName').value.trim(),amt=parseFloat($('ltAmt').value);
+    if(!n||isNaN(amt)){alert('Enter a name and an amount.');return;}
+    if(S.leaveTypes.some(t=>t.name.toLowerCase()===n.toLowerCase()&&t.id!==edit.lt)){alert('That leave type already exists.');return;}
+    const r={name:n,accrual:$('ltAcc').value,amount:amt,inTotal:$('ltTot').checked};
+    if(edit.lt){const t=S.leaveTypes.find(x=>x.id===edit.lt);if(t.name!==n)S.activities.forEach(a=>{if(a.leaveType===t.name)a.leaveType=n;});Object.assign(t,r);}
+    else S.leaveTypes.push(Object.assign({id:uid()},r));
+    save();resetLt();renderAll();
+  };
+  $('ltCancel').onclick=resetLt;
+  $('lvYear').onchange=renderLeave;
+
+  /* trainings */
+  $('trnYear').onchange=()=>{S.sel.tyear=$('trnYear').value;renderAll();};
+  $('trSave').onclick=saveTr;$('trCancel').onclick=resetTr;
+  /* supervisors & sectors */
+  $('svSave').onclick=saveSv;$('svCancel').onclick=resetSv;
+  $('scSave').onclick=saveSc;$('scCancel').onclick=resetSc;
+
+  /* backup */
+  $('exp').onclick=()=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));
+    a.download='peso-dtr-backup.json';a.click();
+  };
+  $('imp').onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    f.text().then(t=>{try{const o=JSON.parse(t);localStorage.setItem(KEY,JSON.stringify(o));S=load();renderAll();}catch(err){alert('Invalid backup file');}});
+  };
+  $('reset').onclick=()=>{if(confirm('Reset all data to the defaults from the workbook?')){try{localStorage.removeItem(KEY);}catch(e){}S=load();renderAll();}};
+
+  /* row buttons (edit / delete) */
+  document.addEventListener('click',ev=>{
+    const b=ev.target.closest('[data-a]');if(!b)return;
+    const a=b.dataset.a,id=b.dataset.id,tl=el=>el.scrollIntoView({behavior:'smooth',block:'center'});
+    if(a==='edit-act'){
+      const x=S.activities.find(y=>y.id===id);if(!x)return;
+      edit.act=id;$('actDate').value=x.date;$('actTo').value='';$('actTo').disabled=true;$('actType').value=x.activity;syncActForm();$('actLeave').value=x.leaveType;$('actRemarks').value=x.remarks;
+      $('actTitle').textContent='Edit activity';$('actSave').textContent='Save changes';$('actCancel').style.display='';tl($('actTitle'));
+    }else if(a==='del-act'){
+      if(confirm('Delete this activity?')){S.activities=S.activities.filter(y=>y.id!==id);if(edit.act===id)resetAct();renderAll();}
+    }else if(a==='edit-em'){
+      const x=S.employees.find(y=>y.id===id);if(!x)return;
+      edit.em=id;refreshEmSelects(x.supervisor||'',x.sector||'');EM_FIELDS.forEach(f=>$('em_'+f[0]).value=x[f[0]]||'');
+      $('emTitle').textContent='Edit employee';$('emSave').textContent='Save changes';$('emCancel').style.display='';tl($('emTitle'));
+    }else if(a==='del-em'){
+      if(S.employees.length<2){alert('At least one employee is required.');return;}
+      if(confirm('Delete this employee and all of their activities?')){S.employees=S.employees.filter(y=>y.id!==id);S.activities=S.activities.filter(y=>y.emp!==id);S.trainings=S.trainings.filter(y=>y.emp!==id);if(edit.em===id)resetEm();renderAll();}
+    }else if(a==='edit-co'){
+      const x=S.cutoffs.find(y=>y.id===id);if(!x)return;
+      edit.co=id;$('coType').value=x.type;$('coCut').value=x.cutoff;$('coPay').value=x.payroll;$('coStart').value=x.start;$('coEnd').value=x.end;
+      $('coTitle').textContent='Edit cut-off';$('coSave').textContent='Save changes';$('coCancel').style.display='';tl($('coTitle'));
+    }else if(a==='del-co'){
+      if(confirm('Delete this cut-off?')){S.cutoffs=S.cutoffs.filter(y=>y.id!==id);if(edit.co===id)resetCo();renderAll();}
+    }else if(a==='edit-ho'){
+      const x=S.holidays.find(y=>y.id===id);if(!x)return;
+      edit.ho=id;$('hoDate').value=x.date;$('hoName').value=x.name;$('hoTitle').textContent='Edit holiday';$('hoSave').textContent='Save changes';$('hoCancel').style.display='';tl($('hoTitle'));
+    }else if(a==='del-ho'){
+      if(confirm('Delete this holiday?')){S.holidays=S.holidays.filter(y=>y.id!==id);if(edit.ho===id)resetHo();renderAll();}
+    }else if(a==='edit-su'){
+      const x=S.suspensions.find(y=>y.id===id);if(!x)return;
+      edit.su=id;$('suDate').value=x.date;$('suKind').value=x.kind;$('suRem').value=x.remarks;$('suTitle').textContent='Edit work suspension';$('suSave').textContent='Save changes';$('suCancel').style.display='';tl($('suTitle'));
+    }else if(a==='del-su'){
+      if(confirm('Delete this work suspension?')){S.suspensions=S.suspensions.filter(y=>y.id!==id);if(edit.su===id)resetSu();renderAll();}
+    }else if(a==='edit-lt'){
+      const x=S.leaveTypes.find(y=>y.id===id);if(!x)return;
+      edit.lt=id;$('ltName').value=x.name;$('ltAcc').value=x.accrual;$('ltAmt').value=x.amount;$('ltTot').checked=!!x.inTotal;$('ltTitle').textContent='Edit leave type';$('ltSave').textContent='Save changes';$('ltCancel').style.display='';tl($('ltTitle'));
+    }else if(a==='del-lt'){
+      const x=S.leaveTypes.find(y=>y.id===id);if(!x)return;
+      const n=S.activities.filter(y=>y.leaveType===x.name).length;
+      if(confirm('Delete leave type "'+x.name+'"?'+(n?' '+n+' filed leave(s) use it and will no longer count in Leave Usage.':''))){S.leaveTypes=S.leaveTypes.filter(y=>y.id!==id);if(edit.lt===id)resetLt();renderAll();}
+    }else if(a==='edit-tr'){
+      const x=S.trainings.find(y=>y.id===id);if(!x)return;
+      edit.tr=id;$('trName').value=x.name;$('trStart').value=x.start;$('trEnd').value=x.end;$('trHrs').value=x.hours;$('trType').value=x.type;$('trBy').value=x.by;
+      $('trTitle').textContent='Edit training';$('trSave').textContent='Save changes';$('trCancel').style.display='';tl($('trTitle'));
+    }else if(a==='del-tr'){
+      if(confirm('Delete this training?')){S.trainings=S.trainings.filter(y=>y.id!==id);if(edit.tr===id)resetTr();renderAll();}
+    }else if(a==='edit-sv'){
+      const x=S.supervisors.find(y=>y.id===id);if(!x)return;
+      edit.sv=id;$('svName').value=x.name;$('svPos').value=x.position;$('svTitle').textContent='Edit supervisor';$('svSave').textContent='Save changes';$('svCancel').style.display='';tl($('svTitle'));
+    }else if(a==='del-sv'){
+      const x=S.supervisors.find(y=>y.id===id);if(!x)return;
+      const n=S.employees.filter(e=>e.supervisor===x.name).length;
+      if(confirm('Delete supervisor "'+x.name+'"?'+(n?' '+n+' employee(s) currently use this supervisor and will keep the name as typed.':''))){S.supervisors=S.supervisors.filter(y=>y.id!==id);if(edit.sv===id)resetSv();renderAll();}
+    }else if(a==='edit-sc'){
+      const x=S.sectors.find(y=>y.id===id);if(!x)return;
+      edit.sc=id;$('scName').value=x.name;$('scTitle').textContent='Edit sector';$('scSave').textContent='Save changes';$('scCancel').style.display='';tl($('scTitle'));
+    }else if(a==='del-sc'){
+      const x=S.sectors.find(y=>y.id===id);if(!x)return;
+      const n=S.employees.filter(e=>e.sector===x.name).length;
+      if(confirm('Delete sector "'+x.name+'"?'+(n?' '+n+' employee(s) currently use it and will keep the value.':''))){S.sectors=S.sectors.filter(y=>y.id!==id);if(edit.sc===id)resetSc();renderAll();}
+    }
+  });
+})();
+</script>
+</body>
+</html>
