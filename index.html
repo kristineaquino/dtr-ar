@@ -783,6 +783,11 @@ function arSigs(e){
   return '<div class="sigs"><div><div class="k">Submitted BY:</div><div class="n">'+esc(empName(e))+'</div><div>'+esc(e.position)+'</div></div>'+
     '<div><div class="k">Approved By:</div><div class="n">'+esc(dh?dh.name:'')+'</div><div>'+esc(dh?dh.position:'')+'</div><div>'+esc(e.division||'')+'</div></div></div>';
 }
+function dateRange(a,b){
+  if(a.getTime()===b.getTime())return long(a);
+  if(a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear())return long(a).replace(/,\s*\d{4}$/,'')+' - '+b.getDate()+', '+b.getFullYear();
+  return long(a)+' - '+long(b);
+}
 function renderAR(){
   const e=emp(),c=cut();
   if(!e||!c){$('arOut').innerHTML=noCut;return;}
@@ -800,7 +805,17 @@ function renderAR(){
       if(wk){cur=null;blocks.push([[d,i]]);}
       else{if(!cur){cur=[];blocks.push(cur);}cur.push([d,i]);}
     });
-    rows=blocks.map(b=>'<tr class="blk"><td colspan="2">'+b.map(x=>'<div class="dr"><div>'+long(x[0])+'</div><div class="t">'+(esc(arLabel(x[1]))||'&nbsp;')+'</div></div>').join('')+'</td></tr>').join('');
+    /* consecutive days with the same task are shown once, with the date range */
+    rows=blocks.map(b=>{
+      const lab=x=>String(arLabel(x[1])||'').trim().replace(/\s+/g,' ').toUpperCase();
+      const items=[];
+      b.forEach(x=>{
+        const l=items[items.length-1];
+        if(l&&lab(x)&&l.k===lab(x)){l.last=x[0];}
+        else items.push({k:lab(x),first:x[0],last:x[0],info:x[1]});
+      });
+      return '<tr class="blk"><td colspan="2">'+items.map(it=>'<div class="dr"><div>'+dateRange(it.first,it.last)+'</div><div class="t">'+(esc(arLabel(it.info))||'&nbsp;')+'</div></div>').join('')+'</td></tr>';
+    }).join('');
   }
   $('arOut').innerHTML=arHead(c,'ACCOMPLISHMENT REPORT',vd)+
     '<table class="ar"><thead><tr><th style="width:42%">DATE</th><th>TASK ACCOMPLISHED</th></tr></thead><tbody>'+rows+'</tbody></table>'+arSigs(e);
@@ -811,7 +826,14 @@ function renderWFH(){
   const vd=visDays(c,e);
   if(!vd.length){$('wfhOut').innerHTML=noService;return;}
   const list=S.activities.filter(a=>a.emp===e.id&&a.activity==='WORK FROM HOME'&&inCut(c,a.date)&&inService(e,a.date)).sort((a,b)=>a.date<b.date?-1:1);
-  let rows=list.map(a=>'<tr><td style="width:24%">'+long(parse(a.date))+'</td><td class="l">'+esc(a.remarks)+'</td></tr>').join('');
+  /* consecutive entries with the same task are shown once, with the date range (the Activities page keeps every day) */
+  const grp=[];
+  list.forEach(a=>{
+    const k=String(a.remarks||'').trim().replace(/\s+/g,' ').toUpperCase(),l=grp[grp.length-1];
+    if(l&&l.k===k){l.last=a;}else grp.push({k:k,first:a,last:a});
+  });
+  const wfhDate=g=>dateRange(parse(g.first.date),parse(g.last.date));
+  let rows=grp.map(g=>'<tr><td style="width:24%">'+wfhDate(g)+'</td><td class="l">'+esc(g.first.remarks)+'</td></tr>').join('');
   if(!list.length)for(let n=0;n<10;n++)rows+='<tr><td style="height:9mm"></td><td></td></tr>';
   $('wfhOut').innerHTML='<div class="hd"><div class="o">'+esc(S.office.name)+'</div><div class="t">ACCOMPLISHMENT REPORT</div></div>'+
     '<div class="per"><div>Attendance Period : '+long(vd[0])+' - '+long(vd[vd.length-1])+'</div></div>'+
